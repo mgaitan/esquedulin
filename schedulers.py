@@ -83,7 +83,7 @@ class Process():
 
         self.name = name or random.choice(range(1000)) 
         self.init_time = init_time
-        self.end_time = None
+        self.end_time = -1
 
         self.cpu_time = 0 #no processor time yet
         self.estimated_duration = estimated_duration
@@ -193,7 +193,7 @@ class Algorithm():
     #@logger("Algorithm")
     def step(self):
         """rutine executed on every clock signal"""
-        self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to new processes?
+        self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to a new processes?
         self.recalculate() #reorder list applying selection function
 
         self.clock.inc() #increment global clock
@@ -203,30 +203,26 @@ class Algorithm():
             self.finished.append(p)
 
         for p2 in self.process_list:
-            if p2.status in ('new','blocked', 'ready'): p2.wait()
-
-
-      
+            p2.wait()
 
     #@logger("Algorithm")
     def recalculate(self):
         """reorder the queue and set new process on CPU"""
+        
+        
         if self.preferent and not self.cpu.is_empty():
             #may be a running process could go back to the queue
             self.process_list.append(self.cpu.get_process())
-
+        
+        
         self.process_list.sort(cmp = self.selection_function)
         
-        #set first of queue
+
+        #set first on CPU
         if self.cpu.is_empty() and len(self.process_list) > 0:
             self.cpu.set_process(self.process_list.pop(0)) 
-    
+        
 
-
-    def complete_process(self):
-        #complete time
-        for p in self.process_list:
-            p.life +=  [0]*(self.total_estimated_duration - len(p))
         
     def plot(self):
         fig = plt.figure()
@@ -236,6 +232,7 @@ class Algorithm():
         for i,p in enumerate(self.finished):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
             x_range = range(p.init_time,p.end_time + 1)
+            print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
 
         plt.xticks(x)

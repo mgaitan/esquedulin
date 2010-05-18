@@ -52,10 +52,28 @@ class SPN(Algorithm):
         if x.estimated_duration > y.estimated_duration:
             return 1
         
-    
-     
-#    def step(self):
-#        Algorithm.step(self)
+   
+
+class SRT(Algorithm):
+    """Shortest remaining time"""
+
+    def __init__(self, procesos):
+        Algorithm.__init__(self,procesos)
+        self.short_name = u'SRT'
+        self.long_name = u'Shortest remaining time'
+        self.description = self.__doc__
+        self.preferent = True
+        
+
+    def selection_function(self, x, y):
+        """Order by remaining time"""
+        if x.remaining_time < y.remaining_time:
+            return -1
+        if x.remaining_time == y.remaining_time:
+            return 0
+        if x.remaining_time > y.remaining_time:
+            return 1
+
 
         
 
@@ -68,7 +86,8 @@ if __name__=="__main__":
                 { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
                 
     #prueba = FCFS(table)
-    prueba = SPN(table)
+    #prueba = SPN(table)
+    prueba = SRT(table)
 
     def cmp_by_order(x, y):
             if x.order < y.order:
@@ -90,3 +109,4 @@ if __name__=="__main__":
     
     prueba.plot()
    
+

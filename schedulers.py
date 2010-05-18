@@ -40,6 +40,7 @@ class Cpu(object):
         self.cores = cores
         self.process = []
         self.life = []
+        self.partial_counter = 0
         
 
     def set_process(self, process):
@@ -54,6 +55,7 @@ class Cpu(object):
             self.life.append(self.process[0].name)
             self.process[0].run(cycles)
             self.elapsed_time += cycles
+            self.partial_counter += cycles
             #process end?
             if self.process[0].status == 'finished':
                 return self.get_process()

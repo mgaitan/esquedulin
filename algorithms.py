@@ -52,7 +52,6 @@ class SPN(Algorithm):
         if x.estimated_duration > y.estimated_duration:
             return 1
         
-   
 
 class SRT(Algorithm):
     """Shortest remaining time"""
@@ -75,6 +74,51 @@ class SRT(Algorithm):
             return 1
 
 
+
+   
+
+class RR(Algorithm):
+    """Round Robin"""
+
+    def __init__(self, procesos, q=1):
+        Algorithm.__init__(self,procesos)
+        self.short_name = u'RR'
+        self.q = q
+        self.long_name = u'Round Robin (Q=%i)' % self.q
+        self.description = self.__doc__
+        #self.preferent = False
+        
+
+    def step(self):
+        """rutine executed on every clock signal"""
+        self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to a new processes?
+        if self.cpu.partial_counter >= self.q and not self.cpu.is_empty():
+            self.cpu.partial_counter = 0                #reset the counter
+            self.process_list.append(self.cpu.get_process())
+ 
+        self.recalculate() #reorder list applying selection function
+        self.clock.inc() #increment global clock
+
+        p = self.cpu.step() #if finish return the process
+        if p:
+            p.end_time = self.clock.time
+            self.finished.append(p)
+        
+        #all other process on ready
+        for p2 in self.process_list:
+            p2.wait()
+
+                
+
+
+
+
+    def recalculate(self):
+        """reorder the queue and set new process on CPU"""
+        
+        #set first on CPU
+        if self.cpu.is_empty() and len(self.process_list) > 0:
+            self.cpu.set_process(self.process_list.pop(0)) 
         
 
         
@@ -87,7 +131,8 @@ if __name__=="__main__":
                 
     #prueba = FCFS(table)
     #prueba = SPN(table)
-    prueba = SRT(table)
+    #prueba = SRT(table)
+    prueba = RR(table)
 
     def cmp_by_order(x, y):
             if x.order < y.order:

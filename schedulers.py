@@ -1,5 +1,70 @@
-from operator import itemgetter 
-import random
+import matplotlib.pyplot as plt
+import numpy as np
+import inspect 
+
+class Singleton(type): 
+    def __init__(cls, name, bases, dct):
+        cls.__instance = None
+        type.__init__(cls, name, bases, dct)
+    def __call__(cls, *args, **kw):
+        if cls.__instance is None:
+            cls.__instance = type.__call__(cls, *args,**kw)
+        return cls.__instance
+
+def logger(name=""):
+    def wrapped(f):
+        def _wrapped(*args, **kwargs):
+            print ">>> %s.%s \n" % (name, f.func_name)
+            result = f(*args, **kwargs)
+            print "<<< %s.%s \n" % (name, f.func_name)
+            return result
+        _wrapped.__doc__ = f.__doc__
+        return _wrapped
+    return wrapped
+
+class Clock():
+    # __metaclass__ = Singleton
+    def __init__(self):
+        self.time = 0 #initial time
+    def inc(self):
+        self.time += 1
+    def __repr__(self):
+        return "Time: %i" % self.time
+
+class Cpu(object):
+    """A processor object"""
+
+    def __init__(self, name="", cores=1):
+        self.name = name
+        self.elapsed_time = 0
+        self.cores = cores
+        self.process = []
+        
+
+    def set_process(self, process):
+        self.process.append(process)
+
+    def get_process(self):
+        return self.process.pop()
+
+    #@logger("Processor")
+    def step(self, cycles=1):
+        if not self.is_empty():
+            self.process[0].run(cycles)
+            self.elapsed_time += cycles
+            #process end?
+            if self.process[0].status == 'finished':
+                return self.get_process()
+
+    def is_empty(self):
+        if len(self.process) != 0:
+            return False
+        else:
+            return True
+    
+    def __repr__(self):
+        return  "CPU running %s...(time elapsed: %i)" % (self.process, self.elapsed_time)   
+
 
 class Process():
     """Create a process in the system
@@ -7,123 +72,170 @@ class Process():
     name is the name of the process, 
     duration is the given estimated processor time. If it's None, the process 
     run until the method finish() is given. 
-    
-    status = created || ready || blocked || running || finished
-    
     """ 
-    
+
+    status_codes = ('new', 'ready', 'running', 'blocked', 'finished')
     INFINITE = 5000
     
-    def __init__(self, name="", init_time=0, estimated_duration=INFINITE, status="created"):
+    def __init__(self, name="", init_time=0, estimated_duration=INFINITE, status='new', order=None):
+
         self.name = name or random.choice(range(1000)) 
         self.init_time = init_time
+        self.end_time = None
+
         self.cpu_time = 0 #no processor time yet
         self.estimated_duration = estimated_duration
         self.waiting_time = 0
-        self.life = []
-        self.status = status
+        self.life = []  #log status of the process during its life. 
+        self.status = status 
         self.remaining_time = self.estimated_duration
         
+        self.order = order 
                
-            
-    def run(self,cycles=1):
-        "Run the process during 'cycles' cpu  and update its values" 
-        self.status = "running"
-                
-        if self.remaining_time > cycles:
-            self.cpu_time  = self.cpu_time + cycles
-        else:
-            self.cpu_time = self.cpu_time + self.remaining_time
-            self.finish()
-            
-        self.remaining_time = self.estimated_duration - self.cpu_time
-        
-        #update life
-        self.life = self.life + [1 for x in range(cycles)]
-        return                
-
-    def wait(self, status="ready", cycles=1):
-        "wait in 'status' queue over 'cycles' CPU periods"
-        self.status = status
-        self.waiting_time = self.waiting_time + cycles
-        self.life = self.life + [0 for x in range(cycles)]
-        
-        return                
+    def __len__(self):
+        return len(self.life)
 
     def __str__(self):
         return self.__repr__()
-    
+
     def __repr__(self):
-        return "Process %s (%s). CPU = %i | INIT = %i | ET = %i | RT = %i  " % (self.name, 
-                self.status, self.cpu_time, self.init_time, self.estimated_duration, 
+        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | ET = %i | RT = %i  " % (self.name, 
+                self.status, self.cpu_time, self.waiting_time, self.init_time, self.estimated_duration, 
                 self.remaining_time)
+
+
+
+    #@logger("Process")        
+    def run(self,cycles=1):
+        """Run the process during 'cycles' cpu  and update its values"""
+        
+        if self.status != 'finished':
+            self.status = "running"                    
+            if self.remaining_time > cycles:
+                self.cpu_time += cycles
+                #update life
+                self.life +=  [self.status] * cycles
+            else:
+                self.cpu_time += self.remaining_time
+                self.life += [self.status] * self.remaining_time
+                self.finish()
+            
+            self.remaining_time = self.estimated_duration - self.cpu_time
+            
+
+    def wait(self, status="ready", cycles=1):
+        """wait in 'status' queue over 'cycles' CPU periods"""
+        self.status = status
+        self.waiting_time += cycles
+        self.life += [self.status] * cycles
+                 
 
     def finish(self):
         "Finish the process and set status"
-        self.duration = self.cpu_time
         self.status = "finished"
-    
+        self.life += [self.status]
     
     def block(self):
         self.status = "blocked"
-    
-        
+        self.life += [self.status]
 
+    
+
+
+class ProcessFactory():
+    """a factory of processes. 
+        Feeds ReadyQueue with new process when
+        the schedule of process list determine it.  
+    """
+
+    def __init__(self, process_table, process_list):
+        self.process_table = process_table
+        
+    #@logger("ProcessFactory")
+    def get_new_process(self, time):
+        """add new process if it's born time"""
+        new_processes = [Process(**p) for p in self.process_table if p['init_time'] == time]
+        return new_processes
 
 class Algorithm():
     "general class for scheduling algorithm"
     
-    def __init__(self, process_table):
-        
-        self.process_list = []
-        for p in process_table:
-            new_process = Process(p, process_table[p][0], process_table[p][1])
-            self.process_list.append(new_process)
-        
-        
+    #@logger("Algorithm")
+    def __init__(self, process_table):        
+        self.cpu = Cpu()
+        self.clock = Clock()
+        self.long_name = self.short_name = "Generic Algorithm"
+        self.process_list = []          #represent the queue of ready process
+    
+        self.finished = []
+
+        self.factory = ProcessFactory(process_table, self.clock)
+        self.preferent = False #if False never a running process is taking off from CPU
         self.total_estimated_duration = 0
-        for process in self.process_list:
-            self.total_estimated_duration = self.total_estimated_duration + process.estimated_duration
-        
+        self.total_time_running = 0
+        for process in process_table:
+            self.total_estimated_duration += process['estimated_duration']
+
     def __repr__(self):
-        sal = "total " + str(self.total_estimated_duration) + "\n\n"
+        sal = "%s (%s) " % (self.long_name, self.short_name)
+        sal += "\nSystem time: %i" % self.clock.time
+        sal += "\nEstimated duration: " + str(self.total_estimated_duration) 
+        sal += "\n%s\n" % self.cpu
+        sal += "QUEUE\n"
         for process in self.process_list:
-            sal = sal + process.__str__() + "\n"
+            sal += process.__str__() + "\n"
         return sal
-
-class FCFS(Algorithm):
-
-
-    def __init__(self,procesos):
-        Algorithm.__init__(self,procesos)
     
 
-    def cmp(self, x, y):
-        """auxiliar method to sort by arrive order. Return -1 0 1"""
-        if x.init_time < y.init_time:
-            return -1
-        if x.init_time == y.init_time:
-            return 0
-        if x.init_time > y.init_time:
-            return 1
-        
 
-    def calc(self):
-        #order process by arrive order
-        self.process_list.sort(cmp = self.cmp)
+    #@logger("Algorithm")
+    def step(self):
+        """rutine executed on every clock signal"""
+        self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to new processes?
+        self.recalculate() #reorder list applying selection function
+        self.clock.inc() #increment global clock
+      
 
-        for cycle in range(self.total_estimated_duration):
-            
-            
-            
-        
-        #each process run until end
+    #@logger("Algorithm")
+    def recalculate(self):
+        """reorder the queue and set new process on CPU"""
+        if self.preferent and not self.cpu.is_empty():
+            #may be a running process could go back to the queue
+            self.process_list.append(self.cpu.get_process())
+
+
+    def complete_process(self):
+        #complete time
         for p in self.process_list:
+            p.life +=  [0]*(self.total_estimated_duration - len(p))
         
-                
+    def plot(self):
         
-         
-if __name__=="__main__":
-    process = {"A":[0,3],"B":[2,6],"C":[4,4],"D":[6,5],"E":[8,2]}
-    prueba = FCFS(process)
-    print prueba    
+        fig = plt.figure()
+        vspace = 1.5
+        x = np.arange(self.total_estimated_duration + 1)
+        ax = fig.add_subplot(111)
+
+        
+        for i,p in enumerate(self.finished):            
+            life_in_binary = [1 if state=='running' else 0 for state in p.life]
+            x_range = range(p.init_time,p.end_time + 1)
+            print x_range, life_in_binary
+            ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
+            
+
+        plt.xticks(x)
+        plt.yticks(np.arange(-vspace,-(1+len(self.finished))*vspace, -vspace), [p.name for p in self.finished])
+        plt.title(self.long_name)
+        plt.grid()
+        plt.show()
+
+
+if __name__ == "__main__":
+
+    table  = [{'name':"A",'init_time':2, 'estimated_duration':3, 'order':0},
+               { 'name':"B",'init_time':0, 'estimated_duration':6, 'order':1},
+                { 'name':"C",'init_time':4, 'estimated_duration':4, 'order':2},
+                { 'name':"D",'init_time':6, 'estimated_duration':5, 'order':3},
+                { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
+    alg = Algorithm(table)

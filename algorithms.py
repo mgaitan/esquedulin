@@ -1,9 +1,5 @@
 from schedulers import Algorithm, logger
 
-#TODO chequear si el generador de procesos FCFS puede crear los procesos en el tiempo que corresponde
-
-
-
 class FCFS(Algorithm):
     """First Came First Serve is a very simple algoritm"""
 
@@ -84,16 +80,16 @@ class RR(Algorithm):
         Algorithm.__init__(self,procesos)
         self.short_name = u'RR'
         self.q = q
+
         self.long_name = u'Round Robin (Q=%i)' % self.q
         self.description = self.__doc__
-        #self.preferent = False
-        
+        self.preferent = True
+            
 
     def step(self):
         """rutine executed on every clock signal"""
         self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to a new processes?
         if self.cpu.partial_counter >= self.q and not self.cpu.is_empty():
-            self.cpu.partial_counter = 0                #reset the counter
             self.process_list.append(self.cpu.get_process())
  
         self.recalculate() #reorder list applying selection function
@@ -118,6 +114,7 @@ class RR(Algorithm):
         
         #set first on CPU
         if self.cpu.is_empty() and len(self.process_list) > 0:
+            self.cpu.partial_counter = 0                #reset the counter
             self.cpu.set_process(self.process_list.pop(0)) 
         
 
@@ -132,7 +129,7 @@ if __name__=="__main__":
     #prueba = FCFS(table)
     #prueba = SPN(table)
     #prueba = SRT(table)
-    prueba = RR(table)
+    prueba = RR(table, q=1)
 
     def cmp_by_order(x, y):
             if x.order < y.order:

@@ -70,6 +70,27 @@ class SRT(Algorithm):
             return 1
 
 
+class HRRN(Algorithm):
+    """Highest Response Rate Next"""
+
+    def __init__(self, procesos):
+        Algorithm.__init__(self,procesos)
+        self.short_name = u'HRRN'
+        self.long_name = u'Highest Response Rate Next'
+        self.description = self.__doc__
+        self.preferent = True
+        
+
+    def selection_function(self, x, y):
+        """Order by remaining time"""
+        if x.remaining_time < y.remaining_time:
+            return -1
+        if x.remaining_time == y.remaining_time:
+            return 0
+        if x.remaining_time > y.remaining_time:
+            return 1
+
+
 
    
 
@@ -83,7 +104,7 @@ class RR(Algorithm):
 
         self.long_name = u'Round Robin (Q=%i)' % self.q
         self.description = self.__doc__
-        self.preferent = True
+        #self.preferent = True
             
 
     def step(self):
@@ -103,11 +124,6 @@ class RR(Algorithm):
         #all other process on ready
         for p2 in self.process_list:
             p2.wait()
-
-                
-
-
-
 
     def recalculate(self):
         """reorder the queue and set new process on CPU"""

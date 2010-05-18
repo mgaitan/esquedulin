@@ -95,6 +95,12 @@ class Process():
         self.remaining_time = self.estimated_duration
         
         self.order = order 
+
+    def rate_of_response(self):
+        "calcules and returns the Rate of Response"
+        r = float(self.waiting_time + self.estimated_duration) / float(self.estimated_duration)
+        return r
+
                
     def __len__(self):
         return len(self.life)

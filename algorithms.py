@@ -17,8 +17,8 @@ class FCFS(Algorithm):
             
 
 
-    def cmp_by_init(self, x, y):
-        """Auxiliar method to sort by arrive order. Return -1 0 1"""
+    def selection_function(self, x, y):
+        """Order by init_time"""
         if x.init_time < y.init_time:
             return -1
         if x.init_time == y.init_time:
@@ -30,24 +30,7 @@ class FCFS(Algorithm):
     def recalculate(self):
         Algorithm.recalculate(self)
         #order process by arrive order
-        self.process_list.sort(cmp = self.cmp_by_init)
-        
-        if self.cpu.is_empty() and len(self.process_list) > 0:
-            self.cpu.set_process(self.process_list.pop(0)) #set first of queue
-    
-    #@logger("FCFS")
-    def step(self):
-        Algorithm.step(self)
-
-        p = self.cpu.step() #if finish return the process
-        if p:
-            p.end_time = self.clock.time
-            self.finished.append(p)
-
-        for p2 in self.process_list:
-            if p2.status in ('new','blocked', 'ready'): p2.wait() 
-
-
+     
 
 class SPN(Algorithm):
     """Short process next"""
@@ -60,8 +43,8 @@ class SPN(Algorithm):
         self.preferent = False #True
         
 
-    def cmp_by_shortness(self, x, y):
-        """Auxiliar method to sort by arrive order. Return -1 0 1"""
+    def selection_function(self, x, y):
+        """Order by shortness"""
         if x.estimated_duration < y.estimated_duration:
             return -1
         if x.estimated_duration == y.estimated_duration:
@@ -69,25 +52,12 @@ class SPN(Algorithm):
         if x.estimated_duration > y.estimated_duration:
             return 1
         
-    def recalculate(self):
-        Algorithm.recalculate(self)
-        #order process by arrive order
-        self.process_list.sort(cmp = self.cmp_by_shortness)
-        
-        if self.cpu.is_empty() and len(self.process_list) > 0:
-            self.cpu.set_process(self.process_list.pop(0)) #set first of queue
     
      
-    def step(self):
-        Algorithm.step(self)
+#    def step(self):
+#        Algorithm.step(self)
 
-        p = self.cpu.step() #if finish return the process
-        if p:
-            p.end_time = self.clock.time
-            self.finished.append(p)
-
-        for p2 in self.process_list:
-            if p2.status in ('new','blocked', 'ready'): p2.wait() 
+        
 
         
 if __name__=="__main__":

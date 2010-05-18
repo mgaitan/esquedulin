@@ -195,7 +195,17 @@ class Algorithm():
         """rutine executed on every clock signal"""
         self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to new processes?
         self.recalculate() #reorder list applying selection function
+
         self.clock.inc() #increment global clock
+        p = self.cpu.step() #if finish return the process
+        if p:
+            p.end_time = self.clock.time
+            self.finished.append(p)
+
+        for p2 in self.process_list:
+            if p2.status in ('new','blocked', 'ready'): p2.wait()
+
+
       
 
     #@logger("Algorithm")
@@ -204,6 +214,13 @@ class Algorithm():
         if self.preferent and not self.cpu.is_empty():
             #may be a running process could go back to the queue
             self.process_list.append(self.cpu.get_process())
+
+        self.process_list.sort(cmp = self.selection_function)
+        
+        #set first of queue
+        if self.cpu.is_empty() and len(self.process_list) > 0:
+            self.cpu.set_process(self.process_list.pop(0)) 
+    
 
 
     def complete_process(self):

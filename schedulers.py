@@ -39,6 +39,7 @@ class Cpu(object):
         self.elapsed_time = 0
         self.cores = cores
         self.process = []
+        self.life = []
         
 
     def set_process(self, process):
@@ -50,6 +51,7 @@ class Cpu(object):
     #@logger("Processor")
     def step(self, cycles=1):
         if not self.is_empty():
+            self.life.append(self.process[0].name)
             self.process[0].run(cycles)
             self.elapsed_time += cycles
             #process end?
@@ -99,8 +101,8 @@ class Process():
         return self.__repr__()
 
     def __repr__(self):
-        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | ET = %i | RT = %i  " % (self.name, 
-                self.status, self.cpu_time, self.waiting_time, self.init_time, self.estimated_duration, 
+        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | END = %i | ET = %i | RT = %i  " % (self.name, 
+                self.status, self.cpu_time, self.waiting_time, self.init_time, self.end_time, self.estimated_duration, 
                 self.remaining_time)
 
 
@@ -210,19 +212,14 @@ class Algorithm():
             p.life +=  [0]*(self.total_estimated_duration - len(p))
         
     def plot(self):
-        
         fig = plt.figure()
         vspace = 1.5
         x = np.arange(self.total_estimated_duration + 1)
         ax = fig.add_subplot(111)
-
-        
         for i,p in enumerate(self.finished):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
             x_range = range(p.init_time,p.end_time + 1)
-            print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
-            
 
         plt.xticks(x)
         plt.yticks(np.arange(-vspace,-(1+len(self.finished))*vspace, -vspace), [p.name for p in self.finished])

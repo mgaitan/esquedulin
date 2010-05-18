@@ -57,8 +57,8 @@ class SPN(Algorithm):
         self.short_name = u'SPN'
         self.long_name = u'Short process next'
         self.description = self.__doc__
-            
-        self.calc()
+        self.preferent = False #True
+        
 
     def cmp_by_shortness(self, x, y):
         """Auxiliar method to sort by arrive order. Return -1 0 1"""
@@ -69,19 +69,25 @@ class SPN(Algorithm):
         if x.estimated_duration > y.estimated_duration:
             return 1
         
-    def calc(self):
+    def recalculate(self):
+        Algorithm.recalculate(self)
         #order process by arrive order
         self.process_list.sort(cmp = self.cmp_by_shortness)
+        
+        if self.cpu.is_empty() and len(self.process_list) > 0:
+            self.cpu.set_process(self.process_list.pop(0)) #set first of queue
+    
      
-    def run(self, cycles=1):
-        for p in self.process_list:
-            while p.status != 'finished':
-                #running the first one
-                p.run(cycles)
-                #wait the rest
-                for p2 in self.process_list:
-                    if p2.status in ('new','blocked', 'ready'): p2.wait(cycles=cycles) 
+    def step(self):
+        Algorithm.step(self)
 
+        p = self.cpu.step() #if finish return the process
+        if p:
+            p.end_time = self.clock.time
+            self.finished.append(p)
+
+        for p2 in self.process_list:
+            if p2.status in ('new','blocked', 'ready'): p2.wait() 
 
         
 if __name__=="__main__":
@@ -91,9 +97,24 @@ if __name__=="__main__":
                 { 'name':"D",'init_time':6, 'estimated_duration':5, 'order':3},
                 { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
                 
-    prueba = FCFS(table)
+    #prueba = FCFS(table)
+    prueba = SPN(table)
+
+    def cmp_by_order(x, y):
+            if x.order < y.order:
+                return -1
+            if x.order == y.order:
+                return 0
+            if x.order > y.order:
+                return 1
+    
+    
+    
     for i in range(prueba.total_estimated_duration):
         prueba.step()
+
+    prueba.finished.sort(cmp=cmp_by_order)
+
     for p in prueba.finished:
         print p.name, p.init_time, p.end_time, p.life
     

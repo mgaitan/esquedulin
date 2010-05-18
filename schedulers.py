@@ -96,8 +96,8 @@ class Process():
         
         self.order = order 
 
-    def rate_of_response(self):
-        "calcules and returns the Rate of Response"
+    def response_rate(self):
+        "calcules and returns the Response Rate"
         r = float(self.waiting_time + self.estimated_duration) / float(self.estimated_duration)
         return r
 

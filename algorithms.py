@@ -78,16 +78,16 @@ class HRRN(Algorithm):
         self.short_name = u'HRRN'
         self.long_name = u'Highest Response Rate Next'
         self.description = self.__doc__
-        self.preferent = True
+        self.preferent = False # True  # es preferente o no preferente? 
         
 
     def selection_function(self, x, y):
-        """Order by remaining time"""
-        if x.remaining_time < y.remaining_time:
+        """Order by higher response rate"""
+        if x.response_rate() > y.response_rate():
             return -1
-        if x.remaining_time == y.remaining_time:
+        if x.response_rate() == y.response_rate():
             return 0
-        if x.remaining_time > y.remaining_time:
+        if x.response_rate() < y.response_rate():
             return 1
 
 
@@ -145,7 +145,7 @@ if __name__=="__main__":
     #prueba = FCFS(table)
     #prueba = SPN(table)
     #prueba = SRT(table)
-    prueba = RR(table, q=1)
+    prueba = HRRN(table)
 
     def cmp_by_order(x, y):
             if x.order < y.order:

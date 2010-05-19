@@ -232,31 +232,34 @@ class Algorithm():
         if self.cpu.is_empty() and len(self.process_list) > 0:
             self.cpu.set_process(self.process_list.pop(0)) 
         
-
         
     def plot(self):
+        def cmp_by_order(x, y):
+            if x.order < y.order:
+                return -1
+            if x.order == y.order:
+                return 0
+            if x.order > y.order:
+                return 1
+        
+        all_process = self.finished + self.process_list + self.cpu.process
+        all_process.sort(cmp = cmp_by_order)
+
         fig = plt.figure()
         vspace = 1.5
-        x = np.arange(self.total_estimated_duration + 1)
+        x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1)
         ax = fig.add_subplot(111)
-        for i,p in enumerate(self.finished):            
+        
+        for i,p in enumerate(all_process):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
-            x_range = range(p.init_time,p.end_time + 1)
+            x_range = range(p.init_time,(p.end_time + 1 if p.end_time !=-1 else self.clock.time))
             print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
 
         plt.xticks(x)
-        plt.yticks(np.arange(-vspace,-(1+len(self.finished))*vspace, -vspace), [p.name for p in self.finished])
+        plt.yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace), [p.name for p in all_process])
         plt.title(self.long_name)
         plt.grid()
         plt.show()
 
 
-if __name__ == "__main__":
-
-    table  = [{'name':"A",'init_time':2, 'estimated_duration':3, 'order':0},
-               { 'name':"B",'init_time':0, 'estimated_duration':6, 'order':1},
-                { 'name':"C",'init_time':4, 'estimated_duration':4, 'order':2},
-                { 'name':"D",'init_time':6, 'estimated_duration':5, 'order':3},
-                { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
-    alg = Algorithm(table)

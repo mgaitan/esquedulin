@@ -233,24 +233,13 @@ if __name__=="__main__":
     #prueba = SPN(table)
     #prueba = SRT(table)
     #prueba = HRRN(table)
-    prueba = FB(table, q=2, exp=True)
+    prueba = FCFS(table)
 
     if True:
-        def cmp_by_order(x, y):
-                if x.order < y.order:
-                    return -1
-                if x.order == y.order:
-                    return 0
-                if x.order > y.order:
-                    return 1
-        
-        for i in range(prueba.total_estimated_duration):
+        time = 11 #prueba.total_estimated_duration
+        for i in range(time):
             prueba.step()
 
-        prueba.finished.sort(cmp=cmp_by_order)
-
-        for p in prueba.finished:
-            print p.name, p.init_time, p.end_time, p.life
         
         prueba.plot()
    

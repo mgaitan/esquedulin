@@ -233,7 +233,7 @@ class Algorithm():
             self.cpu.set_process(self.process_list.pop(0)) 
         
         
-    def plot(self):
+    def set_ax(self, fig, order='111'):
         def cmp_by_order(x, y):
             if x.order < y.order:
                 return -1
@@ -245,10 +245,9 @@ class Algorithm():
         all_process = self.finished + self.process_list + self.cpu.process
         all_process.sort(cmp = cmp_by_order)
 
-        fig = plt.figure()
         vspace = 1.5
         x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1)
-        ax = fig.add_subplot(111)
+        ax = fig.add_subplot(order)
         
         for i,p in enumerate(all_process):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
@@ -256,10 +255,15 @@ class Algorithm():
             print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
 
-        plt.xticks(x)
-        plt.yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace), [p.name for p in all_process])
-        plt.title(self.long_name)
-        plt.grid()
+        ax.set_xticks(x)
+        ax.set_yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace))
+        ax.set_yticklabels([p.name for p in all_process])
+        ax.set_title(self.long_name)
+        ax.grid(True)
+
+
+    def plot(self):
+        fig = plt.figure()
+        self.set_ax(fig, '111')
+        #self.set_ax(fig, '212')
         plt.show()
-
-

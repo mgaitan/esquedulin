@@ -222,25 +222,5 @@ class FB(Algorithm):
         
 
         
-if __name__=="__main__":
-    table = [{'name':"A",'init_time':0, 'estimated_duration':3, 'order':0},
-               { 'name':"B",'init_time':2, 'estimated_duration':6, 'order':1},
-                { 'name':"C",'init_time':4, 'estimated_duration':4, 'order':2},
-                { 'name':"D",'init_time':6, 'estimated_duration':5, 'order':3},
-                { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
-                
-    #prueba = FCFS(table)
-    #prueba = SPN(table)
-    #prueba = SRT(table)
-    #prueba = HRRN(table)
-    prueba = FCFS(table)
-
-    if True:
-        time = 11 #prueba.total_estimated_duration
-        for i in range(time):
-            prueba.step()
-
-        
-        prueba.plot()
    
 

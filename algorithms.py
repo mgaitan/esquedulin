@@ -168,7 +168,8 @@ class FB(Algorithm):
         #end turn?
         if self.cpu.partial_counter >= self.q and not self.cpu.is_empty():
             p = self.cpu.get_process()
-            if p.nice < self.nq - 1  and len([pr for pr in self.process_list])>0 :#last queue? there is other on this queue?
+            stalling_condition = len([pr for pr in self.process_list])>0  #there is other on this queue?
+            if p.nice < self.nq - 1  and stalling_condition :#last queue? 
                 p.nice += 1             #inc nice => drecrement priority
 
             self.process_list.append(p)
@@ -232,7 +233,7 @@ if __name__=="__main__":
     #prueba = SPN(table)
     #prueba = SRT(table)
     #prueba = HRRN(table)
-    prueba = FB(table, q=1)
+    prueba = FB(table, q=2, exp=True)
 
     if True:
         def cmp_by_order(x, y):

@@ -56,6 +56,7 @@ class Cpu(object):
             self.process[0].run(cycles)
             self.elapsed_time += cycles
             self.partial_counter += cycles
+            #print "inc partial %i"  % self.partial_counter
             #process end?
             if self.process[0].status == 'finished':
                 return self.get_process()
@@ -67,7 +68,7 @@ class Cpu(object):
             return True
     
     def __repr__(self):
-        return  "CPU running %s...(time elapsed: %i)" % (self.process, self.elapsed_time)   
+        return  "CPU running %s...(time elapsed: %i | partial: %i)" % (self.process, self.elapsed_time, self.partial_counter)   
 
 
 class Process():
@@ -95,6 +96,7 @@ class Process():
         self.remaining_time = self.estimated_duration
         
         self.order = order 
+        self.nice = 0
 
     def response_rate(self):
         "calcules and returns the Response Rate"
@@ -109,9 +111,9 @@ class Process():
         return self.__repr__()
 
     def __repr__(self):
-        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | END = %i | ET = %i | RT = %i  " % (self.name, 
+        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | END = %i | ET = %i | RT = %i | N = %i  " % (self.name, 
                 self.status, self.cpu_time, self.waiting_time, self.init_time, self.end_time, self.estimated_duration, 
-                self.remaining_time)
+                self.remaining_time, self.nice)
 
 
 

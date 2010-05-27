@@ -6,25 +6,10 @@ import matplotlib.pyplot as plt
 
 
 def main():
+    from settings import TABLE_PROC
 
-    table = [{'name':"A",'init_time':0, 'estimated_duration':3, 'order':0},
-               { 'name':"B",'init_time':2, 'estimated_duration':6, 'order':1},
-                { 'name':"C",'init_time':4, 'estimated_duration':4, 'order':2},
-                { 'name':"D",'init_time':6, 'estimated_duration':5, 'order':3},
-                { 'name':"E",'init_time':8, 'estimated_duration':2, 'order':4}]
-                
-    #prueba = FCFS(table)
-    #prueba = SPN(table)
-    #prueba = SRT(table)
-    #prueba = HRRN(table)
-
-    
-        
-        #self.set_ax(fig, '212')
-
-
-    all = [FCFS(table), SPN(table), SRT(table), HRRN(table), RR(table, q=1), 
-            RR(table, q=4), FB(table, q=1), FB(table, q=2, exp=True)]
+    all = [FCFS(TABLE_PROC), SPN(TABLE_PROC), SRT(TABLE_PROC), HRRN(TABLE_PROC), RR(TABLE_PROC, q=1), 
+            RR(TABLE_PROC, q=4), FB(TABLE_PROC, q=1), FB(TABLE_PROC, q=2, exp=True)]
 
 
 
@@ -35,7 +20,7 @@ def main():
         for i in range(time):
             alg.step()
         alg.set_ax(fig, '%i1%i' % (len(all), num+1))
-        
+    
     plt.show()
 
 

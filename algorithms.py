@@ -1,7 +1,8 @@
-from schedulers import Algorithm, logger
+from schedulers import Algorithm 
+#from helpers import logger
 
 class FCFS(Algorithm):
-    """First Came First Serve is a very simple algoritm"""
+    """First Came First Serve is the most simple algorithm"""
 
     #@logger("FCFS")
     def __init__(self,procesos):
@@ -14,13 +15,15 @@ class FCFS(Algorithm):
 
 
     def selection_function(self, x, y):
-        """Order by init_time"""
-        if x.init_time < y.init_time:
-            return -1
-        if x.init_time == y.init_time:
-            return 0
-        if x.init_time > y.init_time:
-            return 1
+        """Doesn't alter the order of process in the queue"""
+        return 0
+
+        #if x.init_time < y.init_time:
+            #return -1
+        #if x.init_time == y.init_time:
+            #return 0
+        #if x.init_time > y.init_time:
+            #return 1
         
     #@logger("FCFS")
     def recalculate(self):
@@ -168,7 +171,7 @@ class FB(Algorithm):
         #end turn?
         if self.cpu.partial_counter >= self.q and not self.cpu.is_empty():
             p = self.cpu.get_process()
-            stalling_condition = len([pr for pr in self.process_list])>0  #there is other on this queue?
+            stalling_condition = len([pr for pr in self.process_list])>0  #global queue empty?
             if p.nice < self.nq - 1  and stalling_condition :#last queue? 
                 p.nice += 1             #inc nice => drecrement priority
 
@@ -193,13 +196,9 @@ class FB(Algorithm):
         """reorder the queue and set new process on CPU"""
         self.process_list.sort(cmp = self.selection_function)
         
-        print "after order", self.process_list
-            
         #set first process on CPU
         if self.cpu.is_empty() and len(self.process_list) > 0:
                 p = self.process_list.pop(0)
-                #same than last executed?
-                #if len(self.cpu.life)>0 and self.cpu.life[-1] != p.name:
                 self.cpu.partial_counter = 0       #reset the counter
                 self.set_q(p)
                 self.cpu.set_process(p)

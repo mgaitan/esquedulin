@@ -1,26 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import inspect 
-
-class Singleton(type): 
-    def __init__(cls, name, bases, dct):
-        cls.__instance = None
-        type.__init__(cls, name, bases, dct)
-    def __call__(cls, *args, **kw):
-        if cls.__instance is None:
-            cls.__instance = type.__call__(cls, *args,**kw)
-        return cls.__instance
-
-def logger(name=""):
-    def wrapped(f):
-        def _wrapped(*args, **kwargs):
-            print ">>> %s.%s \n" % (name, f.func_name)
-            result = f(*args, **kwargs)
-            print "<<< %s.%s \n" % (name, f.func_name)
-            return result
-        _wrapped.__doc__ = f.__doc__
-        return _wrapped
-    return wrapped
+#from helpers import Singleton, logger
 
 class Clock():
     # __metaclass__ = Singleton
@@ -32,7 +12,7 @@ class Clock():
         return "Time: %i" % self.time
 
 class Cpu(object):
-    """A processor object"""
+    """A processor unit object"""
 
     def __init__(self, name="", cores=1):
         self.name = name
@@ -40,7 +20,7 @@ class Cpu(object):
         self.cores = cores
         self.process = []
         self.life = []
-        self.partial_counter = 0
+        self.partial_counter = 0    #to compare with quantums assignend in RR or FB algorithms.
         
 
     def set_process(self, process):
@@ -56,7 +36,6 @@ class Cpu(object):
             self.process[0].run(cycles)
             self.elapsed_time += cycles
             self.partial_counter += cycles
-            #print "inc partial %i"  % self.partial_counter
             #process end?
             if self.process[0].status == 'finished':
                 return self.get_process()
@@ -252,13 +231,14 @@ class Algorithm():
         for i,p in enumerate(all_process):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
             x_range = range(p.init_time,(p.end_time + 1 if p.end_time !=-1 else self.clock.time))
-            print x_range, life_in_binary
+            #print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
 
         ax.set_xticks(x)
         ax.set_yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace))
         ax.set_yticklabels([p.name for p in all_process])
-        ax.set_title(self.long_name)
+        #ax.set_title(self.long_name)
+        ax.set_ylabel(self.long_name, rotation='horizontal')
         ax.grid(True)
 
 

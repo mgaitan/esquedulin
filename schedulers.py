@@ -39,6 +39,11 @@ class Cpu(object):
             #process end?
             if self.process[0].status == 'finished':
                 return self.get_process()
+        else:
+            self.life.append('idle')
+
+    def count_idle_time(self):
+        return self.life.count('idle')
 
     def is_empty(self):
         if len(self.process) != 0:
@@ -225,7 +230,9 @@ class Algorithm():
         all_process.sort(cmp = cmp_by_order)
 
         vspace = 1.5
-        x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1)
+        #x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1 )
+        x = np.arange(self.clock.time + 1)
+        
         ax = fig.add_subplot(order)
         
         for i,p in enumerate(all_process):            
@@ -238,7 +245,8 @@ class Algorithm():
         ax.set_yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace))
         ax.set_yticklabels([p.name for p in all_process])
         #ax.set_title(self.long_name)
-        ax.set_ylabel(self.long_name, rotation='horizontal')
+        #ax.set_ylabel(self.long_name, rotation='horizontal')
+        ax.set_ylabel(self.short_name)
         ax.grid(True)
 
 

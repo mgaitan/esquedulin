@@ -9,6 +9,10 @@ class Clock():
         self.time = 0 #initial time
     def inc(self):
         self.time += 1
+
+    def reset(self):
+        self.time = 0
+
     def __repr__(self):
         return "Time: %i" % self.time
 
@@ -17,11 +21,9 @@ class Cpu(object):
 
     def __init__(self, name="", cores=1):
         self.name = name
-        self.elapsed_time = 0
         self.cores = cores
-        self.process = []
-        self.life = []
-        self.partial_counter = 0    #to compare with quantums assignend in RR or FB algorithms.
+
+        self.reset()
         
 
     def set_process(self, process):
@@ -45,6 +47,12 @@ class Cpu(object):
 
     def count_idle_time(self):
         return self.life.count('idle')
+
+    def reset(self):
+        self.elapsed_time = 0
+        self.process = []
+        self.life = []
+        self.partial_counter = 0       
 
     def is_empty(self):
         if len(self.process) != 0:
@@ -162,29 +170,24 @@ class Algorithm():
         self.cpu = Cpu()
         self.clock = Clock()
         self.long_name = self.short_name = "Generic Algorithm"
-        self.process_list = []          #represent the queue of ready process
-    
-        self.finished = []
-
-            
+        
+        self.reset()
         
         self.preferent = False #if False never a running process is taking off from CPU
-        self.total_estimated_duration = 0
-        self.total_time_running = 0
-
+        
+        self.factory = None
         if process_table:
             self.set_process_table(process_table)
-        else:
-            self.factory = None
-
+        
 
 
     def set_process_table(self, process_table):
         """ Function doc """
-        self.factory = ProcessFactory(process_table, self.clock)
-        for process in process_table:
-            #TODO hay que considerar el idle time
-            self.total_estimated_duration += process['estimated_duration']
+        if self.factory is None or process_table is not self.factory.process_table:        
+            self.factory = ProcessFactory(process_table, self.clock)
+            for process in process_table:
+                #TODO hay que considerar el idle time
+                self.total_estimated_duration += process['estimated_duration']
 
     
 
@@ -235,6 +238,15 @@ class Algorithm():
         #set first on CPU
         if self.cpu.is_empty() and len(self.process_list) > 0:
             self.cpu.set_process(self.process_list.pop(0)) 
+
+
+    def reset(self):
+        self.process_list = []
+        self.finished = []
+        self.total_estimated_duration = 0
+        self.total_time_running = 0
+        self.clock.reset()
+        self.cpu.reset()
         
         
     def set_ax(self, fig, order='111'):
@@ -253,8 +265,10 @@ class Algorithm():
         #x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1 )
         x = np.arange(self.clock.time + 1)
         
+        print x
+
         ax = fig.add_subplot(order)
-        
+        ax.clear()
         for i,p in enumerate(all_process):            
             life_in_binary = [1 if state=='running' else 0 for state in p.life]
             x_range = range(p.init_time,(p.end_time + 1 if p.end_time !=-1 else self.clock.time))

@@ -16,6 +16,7 @@ from MyWidgets import NewEnterHandlingGrid, MplPanel
 from AboutFrame import AboutFrame       #la ventana de "Acerca de" donde estamos nosotros
 import helpers
 
+from matplotlib.figure import Figure
 
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwds):
@@ -268,10 +269,9 @@ class MainFrame(wx.Frame):
                     return None
 
             #asociating an entry in the list with a dictionary of algorithm instances 
-            alg_instance = alg(**params)
             id = wx.NewId()
-            self.algorithm_list_data[ id ] = alg_instance
-            self.algorithm_list.Append([alg_instance.long_name])  
+            self.algorithm_list_data[ id ] = (alg_name, params)
+            self.algorithm_list.Append([alg_name + str(params)])  
             #TODO: this is ugly, right?
             self.algorithm_list.SetItemData(self.algorithm_list.GetItemCount() - 1, id)
             
@@ -341,22 +341,25 @@ class MainFrame(wx.Frame):
 
         all = []
         for alg_key in sorted(self.algorithm_list_data.keys()):
-            algorithm = self.algorithm_list_data[alg_key]
+            alg_name, params = self.algorithm_list_data[alg_key]
+            
+            algorithm = self.implemented[alg_name](params)
             algorithm.set_process_table(TABLE_PROC)
             all.append(algorithm)
 
         
-        self.panel_1.figure.clear()
+        self.panel_1.canvas.figure.clf()
 
         for num, alg in enumerate(all):
             time = alg.total_estimated_duration #10
+            print 'time', time
             for i in range(time) :
                 alg.step()
         
 
             alg.set_ax(self.panel_1.figure, '%i1%i' % (len(all), num+1))
     
-        self.panel_1.canvas.draw()
+        self.panel_1.figure.canvas.draw()
 
 
 

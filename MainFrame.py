@@ -4,7 +4,7 @@
 import wx
 import wx.grid
 import random
-
+import inspect
 # begin wxGlade: dependencies
 # end wxGlade
 
@@ -26,10 +26,14 @@ class MainFrame(wx.Frame):
         self.sizer_3_staticbox = wx.StaticBox(self, -1, "Procesos")
         #self.process_list_widget = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.process_grid = NewEnterHandlingGrid(self)
-        alg_choices = helpers.get_implemented()
-        self.algorithm_combo = wx.ComboBox(self, -1, "", choices=[alg[0] for alg in alg_choices])
+
+        self.implemented = helpers.get_implemented()
+
+        self.algorithm_combo = wx.ComboBox(self, -1, "", choices=sorted(self.implemented.keys()))
         self.algorithm_button = wx.Button(self, -1, "ok", style=wx.BU_EXACTFIT)
-        self.list_ctrl_1 = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|wx.FULL_REPAINT_ON_RESIZE)
+        self.algorithm_list = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|wx.FULL_REPAINT_ON_RESIZE)
+
+
         self.panel_1 = wx.Panel(self, -1)
 
         # Menu Bar
@@ -117,7 +121,7 @@ class MainFrame(wx.Frame):
         sizer_6.Add(self.algorithm_combo, 3, wx.TOP, 3)
         sizer_6.Add(self.algorithm_button, 0, wx.RIGHT, 0)
         sizer_5.Add(sizer_6, 0, wx.EXPAND, 0)
-        sizer_7.Add(self.list_ctrl_1, 1, wx.EXPAND, 0)
+        sizer_7.Add(self.algorithm_list, 1, wx.EXPAND, 0)
         sizer_5.Add(sizer_7, 1, wx.EXPAND, 0)
         sizer_4.Add(sizer_5, 1, wx.EXPAND, 0)
         sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
@@ -246,7 +250,28 @@ class MainFrame(wx.Frame):
                 self.Destroy()
 
     def action_add_algorithm(self, event):
-        pass
+        alg_name = self.algorithm_combo.GetValue()
+        if alg_name in self.implemented.keys():
+            alg = self.implemented[alg_name]
+            arg_spec = inspect.getargspec(getattr(alg, '__init__'))
+            print arg_spec
+            params = {}
+            for i, arg in enumerate(arg_spec.args[2:]):
+                dlg = wx.TextEntryDialog(self, '%s?' % arg, u'Parámentros de %s' % alg_name, 
+                                            defaultValue=str(arg_spec.defaults[i]))
+                if dlg.ShowModal()  == wx.ID_OK:
+                    params[arg] = dlg.GetValue()        #? como saber a que tipo de dato castear?
+                else:
+                    #canceled
+                    return None
+        
+            print params
+            self.algorithm_list.Append(alg_name)    #falla porque no hay columnas creada?
+        else:
+            #not valid algorithm
+            wx.Bell()
+            return
+    
 
 
     def action_add_random_process(self, event):

@@ -100,16 +100,16 @@ class HRRN(Algorithm):
 class RR(Algorithm):
     """Round Robin"""
 
-    def __init__(self, procesos=None, q=1):
+    def __init__(self, procesos=None, quantum=1):
         try:
-            q = int(q)
+            q = int(quantum)
         except ValueError:
             return
 
         Algorithm.__init__(self,procesos)
-        self.short_name = u'RR'
         self.q = q
 
+        self.short_name = u'RR (Q=%i)' %  self.q
         self.long_name = u'Round Robin (Q=%i)' % self.q
         self.description = self.__doc__
         #self.preferent = True

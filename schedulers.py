@@ -183,10 +183,16 @@ class Algorithm():
 
     def set_process_table(self, process_table):
         """ Function doc """
+
+        print "tabla de procesos", process_table
+
+        
+
         if self.factory is None or process_table is not self.factory.process_table:        
             self.factory = ProcessFactory(process_table, self.clock)
             for process in process_table:
                 #TODO hay que considerar el idle time
+                print process
                 self.total_estimated_duration += process['estimated_duration']
 
     

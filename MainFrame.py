@@ -101,7 +101,7 @@ class MainFrame(wx.Frame):
         for row in range(15):
             for col, editor in enumerate([  wx.grid.GridCellTextEditor(), 
                                             wx.grid.GridCellNumberEditor(0, 1000), 
-                                            wx.grid.GridCellNumberEditor(0, 1000),
+                                            wx.grid.GridCellNumberEditor(1, 1000),
                                         ]):
                 self.process_grid.SetCellEditor(row, col, editor)
 
@@ -292,18 +292,18 @@ class MainFrame(wx.Frame):
                     break
             else: 
                 return None #canceled
-        dlg = wx.TextEntryDialog(self, '¿Que promedio de duración máxima por proceso?', 'Crear procesos aleatoriamente', defaultValue=u'2')
+        dlg = wx.TextEntryDialog(self, '¿Cual es la duración máxima por proceso?', 'Crear procesos aleatoriamente', defaultValue=u'10')
         while True:
             if dlg.ShowModal()  == wx.ID_OK:               
                 v = dlg.GetValue()
                 if v.isnumeric():
-                    media_duration = int(v)
+                    max_duration = int(v)
                     break
             else: 
                 return None #canceled
 
 
-        init_times  = random.sample(range(1, num_of_proc * media_duration), num_of_proc)
+        init_times  = random.sample(range(1, num_of_proc * max_duration), num_of_proc)
         init_times.sort()
         init_times[0] = 0
 
@@ -337,33 +337,35 @@ class MainFrame(wx.Frame):
                 
             
     def run (self):
-        from settings import TABLE_PROC
 
-        all = []
-        for alg_key in sorted(self.algorithm_list_data.keys()):
-            alg_name, params = self.algorithm_list_data[alg_key]
+        table = self.get_table_process()
+
+        
+
+        if not table:
+            return
+        else:
+
+            all = []
+            for alg_key in sorted(self.algorithm_list_data.keys()):
+                alg_name, params = self.algorithm_list_data[alg_key]
+                
+                algorithm = self.implemented[alg_name](**params)
+
+                algorithm.set_process_table(table)
+                all.append(algorithm)
+
             
-            algorithm = self.implemented[alg_name](params)
-            algorithm.set_process_table(TABLE_PROC)
-            all.append(algorithm)
+            self.panel_1.canvas.figure.clf()
 
+            for num, alg in enumerate(all):
+                time = alg.total_estimated_duration #10     #how long time?
+                for i in range(time) :
+                    alg.step()
+            
+
+                alg.set_ax(self.panel_1.figure, '%i1%i' % (len(all), num+1))
         
-        self.panel_1.canvas.figure.clf()
-
-        for num, alg in enumerate(all):
-            time = alg.total_estimated_duration #10
-            print 'time', time
-            for i in range(time) :
-                alg.step()
-        
-
-            alg.set_ax(self.panel_1.figure, '%i1%i' % (len(all), num+1))
-    
-        self.panel_1.figure.canvas.draw()
-
-
-
-        return 
-        
+            self.panel_1.figure.canvas.draw()        
             
             

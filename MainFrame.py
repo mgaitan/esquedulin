@@ -12,7 +12,7 @@ import inspect
 
 # end wxGlade
 
-from MyWidgets import NewEnterHandlingGrid
+from MyWidgets import NewEnterHandlingGrid, MplPanel
 from AboutFrame import AboutFrame       #la ventana de "Acerca de" donde estamos nosotros
 import helpers
 
@@ -32,9 +32,9 @@ class MainFrame(wx.Frame):
         self.algorithm_combo = wx.ComboBox(self, -1, "", choices=sorted(self.implemented.keys()))
         self.algorithm_button = wx.Button(self, -1, "ok", style=wx.BU_EXACTFIT)
         self.algorithm_list = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|wx.FULL_REPAINT_ON_RESIZE)
+        self.algorithm_list_data = {}
 
-
-        self.panel_1 = wx.Panel(self, -1)
+        self.panel_1 = MplPanel(self, -1)
 
         # Menu Bar
         menues_ids = [wx.NewId() for i in range(7)]
@@ -104,7 +104,8 @@ class MainFrame(wx.Frame):
                                         ]):
                 self.process_grid.SetCellEditor(row, col, editor)
 
-    
+        self.algorithm_list.InsertColumn(0,u'Algoritmo')
+        self.algorithm_list.SetColumnWidth(0,250)
    
 
     def __do_layout(self):
@@ -211,7 +212,7 @@ class MainFrame(wx.Frame):
     def actionSave(self,event):
         """guarda la lista de instrucciones en el archivo abierto. Si no existe, 
         abre el dialogo Guardar como"""
-        print event
+
         if self.filename is None:
             self.actionSaveAs(event)
         else:
@@ -254,19 +255,26 @@ class MainFrame(wx.Frame):
         if alg_name in self.implemented.keys():
             alg = self.implemented[alg_name]
             arg_spec = inspect.getargspec(getattr(alg, '__init__'))
-            print arg_spec
             params = {}
+            
+            #this algorithm request parameters
             for i, arg in enumerate(arg_spec.args[2:]):
                 dlg = wx.TextEntryDialog(self, '%s?' % arg, u'Parámentros de %s' % alg_name, 
-                                            defaultValue=str(arg_spec.defaults[i]))
+                                            defaultValue=str(arg_spec.defaults[i+1]))   #first-one not self parameter is None (table_process)
                 if dlg.ShowModal()  == wx.ID_OK:
-                    params[arg] = dlg.GetValue()        #? como saber a que tipo de dato castear?
+                    params[arg] = dlg.GetValue()        
                 else:
                     #canceled
                     return None
-        
-            print params
-            self.algorithm_list.Append(alg_name)    #falla porque no hay columnas creada?
+
+            #asociating an entry in the list with a dictionary of algorithm instances 
+            alg_instance = alg(**params)
+            id = wx.NewId()
+            self.algorithm_list_data[ id ] = alg_instance
+            self.algorithm_list.Append([alg_instance.long_name])  
+            #TODO: this is ugly, right?
+            self.algorithm_list.SetItemData(self.algorithm_list.GetItemCount() - 1, id)
+            
         else:
             #not valid algorithm
             wx.Bell()
@@ -328,6 +336,31 @@ class MainFrame(wx.Frame):
         return table
                 
             
-            
+    def run (self):
+        from settings import TABLE_PROC
+
+        all = []
+        for alg_key in sorted(self.algorithm_list_data.keys()):
+            algorithm = self.algorithm_list_data[alg_key]
+            algorithm.set_process_table(TABLE_PROC)
+            all.append(algorithm)
+
+        
+        self.panel_1.figure.clear()
+
+        for num, alg in enumerate(all):
+            time = alg.total_estimated_duration #10
+            for i in range(time) :
+                alg.step()
+        
+
+            alg.set_ax(self.panel_1.figure, '%i1%i' % (len(all), num+1))
+    
+        self.panel_1.canvas.draw()
+
+
+
+        return 
+        
             
             

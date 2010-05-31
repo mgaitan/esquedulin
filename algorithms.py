@@ -5,7 +5,7 @@ class FCFS(Algorithm):
     """First Came First Serve is the most simple algorithm"""
 
     #@logger("FCFS")
-    def __init__(self,procesos):
+    def __init__(self,procesos=None):
         Algorithm.__init__(self,procesos)
         self.short_name = u'FCFS'
         self.long_name = u'First-Come, First-Serve'
@@ -34,7 +34,7 @@ class FCFS(Algorithm):
 class SPN(Algorithm):
     """Short process next"""
 
-    def __init__(self, procesos):
+    def __init__(self, procesos=None):
         Algorithm.__init__(self,procesos)
         self.short_name = u'SPN'
         self.long_name = u'Short process next'
@@ -55,7 +55,7 @@ class SPN(Algorithm):
 class SRT(Algorithm):
     """Shortest remaining time"""
 
-    def __init__(self, procesos):
+    def __init__(self, procesos=None):
         Algorithm.__init__(self,procesos)
         self.short_name = u'SRT'
         self.long_name = u'Shortest remaining time'
@@ -76,7 +76,7 @@ class SRT(Algorithm):
 class HRRN(Algorithm):
     """Highest Response Rate Next"""
 
-    def __init__(self, procesos):
+    def __init__(self, procesos=None):
         Algorithm.__init__(self,procesos)
         self.short_name = u'HRRN'
         self.long_name = u'Highest Response Rate Next'
@@ -100,7 +100,12 @@ class HRRN(Algorithm):
 class RR(Algorithm):
     """Round Robin"""
 
-    def __init__(self, procesos, q=1):
+    def __init__(self, procesos=None, q=1):
+        try:
+            q = int(q)
+        except ValueError:
+            return
+
         Algorithm.__init__(self,procesos)
         self.short_name = u'RR'
         self.q = q
@@ -139,12 +144,18 @@ class RR(Algorithm):
 
 class FB(Algorithm):
     """FeedBack"""
-    def __init__(self, procesos, q=1, nq=3, exp=False ):
+    def __init__(self, procesos=None, q=1, nq=3, exp=False ):
         """
         q = lenght (in time) of base turn
         nq = number of queues
         exp = if lenght grew up expononetially q=q**i (i==nice)
         """
+        try:
+            q = int(q)
+            nq = int(nq)
+            exp = False if not exp or exp=='False' else True
+        except ValueError:
+            return
 
         Algorithm.__init__(self,procesos)
         self.short_name = u'FB'

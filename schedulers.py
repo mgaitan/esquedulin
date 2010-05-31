@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 #from helpers import Singleton, logger
 
 class Clock():
@@ -157,7 +158,7 @@ class Algorithm():
     "general class for scheduling algorithm"
     
     #@logger("Algorithm")
-    def __init__(self, process_table):        
+    def __init__(self, process_table=None):        
         self.cpu = Cpu()
         self.clock = Clock()
         self.long_name = self.short_name = "Generic Algorithm"
@@ -165,12 +166,28 @@ class Algorithm():
     
         self.finished = []
 
-        self.factory = ProcessFactory(process_table, self.clock)
+            
+        
         self.preferent = False #if False never a running process is taking off from CPU
         self.total_estimated_duration = 0
         self.total_time_running = 0
+
+        if process_table:
+            self.set_process_table(process_table)
+        else:
+            self.factory = None
+
+
+
+    def set_process_table(self, process_table):
+        """ Function doc """
+        self.factory = ProcessFactory(process_table, self.clock)
         for process in process_table:
+            #TODO hay que considerar el idle time
             self.total_estimated_duration += process['estimated_duration']
+
+    
+
 
     def __repr__(self):
         sal = "%s (%s) " % (self.long_name, self.short_name)
@@ -187,6 +204,9 @@ class Algorithm():
     #@logger("Algorithm")
     def step(self):
         """rutine executed on every clock signal"""
+        if self.factory is None:
+            sys.stderr.write('%s: No hay tabla de procesos asignadas para esta instancia' % self.short_name)
+    
         self.process_list.extend(self.factory.get_new_process(self.clock.time)) #time to a new processes?
         self.recalculate() #reorder list applying selection function
 

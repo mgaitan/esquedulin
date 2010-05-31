@@ -14,7 +14,7 @@ import random
 
 from MyWidgets import NewEnterHandlingGrid
 from AboutFrame import AboutFrame       #la ventana de "Acerca de" donde estamos nosotros
-
+import helpers
 
 
 class MainFrame(wx.Frame):
@@ -26,7 +26,8 @@ class MainFrame(wx.Frame):
         self.sizer_3_staticbox = wx.StaticBox(self, -1, "Procesos")
         #self.process_list_widget = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.process_grid = NewEnterHandlingGrid(self)
-        self.text_ctrl_1 = wx.TextCtrl(self, -1, "")
+        alg_choices = helpers.get_implemented()
+        self.algorithm_combo = wx.ComboBox(self, -1, "", choices=[alg[0] for alg in alg_choices])
         self.algorithm_button = wx.Button(self, -1, "ok", style=wx.BU_EXACTFIT)
         self.list_ctrl_1 = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|wx.FULL_REPAINT_ON_RESIZE)
         self.panel_1 = wx.Panel(self, -1)
@@ -100,6 +101,8 @@ class MainFrame(wx.Frame):
                 self.process_grid.SetCellEditor(row, col, editor)
 
     
+   
+
     def __do_layout(self):
         # begin wxGlade: GuiMain.__do_layout
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -111,7 +114,7 @@ class MainFrame(wx.Frame):
         sizer_3 = wx.StaticBoxSizer(self.sizer_3_staticbox, wx.HORIZONTAL)
         sizer_3.Add(self.process_grid, 1, wx.EXPAND, 0)
         sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-        sizer_6.Add(self.text_ctrl_1, 3, wx.TOP, 3)
+        sizer_6.Add(self.algorithm_combo, 3, wx.TOP, 3)
         sizer_6.Add(self.algorithm_button, 0, wx.RIGHT, 0)
         sizer_5.Add(sizer_6, 0, wx.EXPAND, 0)
         sizer_7.Add(self.list_ctrl_1, 1, wx.EXPAND, 0)
@@ -256,7 +259,7 @@ class MainFrame(wx.Frame):
                     break
             else: 
                 return None #canceled
-        dlg = wx.TextEntryDialog(self, '¿Que promedio de duración por proceso?', 'Crear procesos aleatoriamente', defaultValue=u'2')
+        dlg = wx.TextEntryDialog(self, '¿Que promedio de duración máxima por proceso?', 'Crear procesos aleatoriamente', defaultValue=u'2')
         while True:
             if dlg.ShowModal()  == wx.ID_OK:               
                 v = dlg.GetValue()
@@ -275,7 +278,7 @@ class MainFrame(wx.Frame):
         for i in range(num_of_proc):
             self.process_grid.SetCellValue(i, 0, chr(65 + i)) #name
             self.process_grid.SetCellValue(i, 1, str(init_times.pop(0))) #init
-            self.process_grid.SetCellValue(i, 2, str(random.randint(1, media_duration*2)))
+            self.process_grid.SetCellValue(i, 2, str(random.randint(1, max_duration)))
         
 
     def set_table_process(self, table):
@@ -283,10 +286,10 @@ class MainFrame(wx.Frame):
         for row, p in enumerate(table):
             for col, col_key in enumerate(['name', 'init_time', 'estimated_duration']):
                 self.process_grid.SetCellValue(row, col, str(p[col_key]))
-            
         
+    
 
-    def action_get_table_process(self, event):
+    def get_table_process(self):
         table = []
         for row in range(self.process_grid.GetNumberRows()):
             try:
@@ -300,7 +303,6 @@ class MainFrame(wx.Frame):
         return table
                 
             
-                
             
             
             

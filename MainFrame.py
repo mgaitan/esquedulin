@@ -39,6 +39,10 @@ class MainFrame(wx.Frame):
 
         self.notebook_1 = wx.Notebook(self, -1, style=0)
         self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
+        self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
+
+
+        self.stats_grid = wx.grid.Grid(self.notebook_1_pane_2, -1, size=(1, 1))
 
         #self.sizer_8_staticbox = wx.StaticBox(self, -1, "Resultado")
 
@@ -173,6 +177,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.action_add_random_process, id=self.tools_ids[11])
         self.Bind(wx.EVT_TOOL, self.action_refresh_all, id=self.tools_ids[12])
 
+        self.stats_grid.CreateGrid(30, 30)
+
     def __do_layout(self):
         # begin wxGlade: GuiMain.__do_layout
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -181,6 +187,8 @@ class MainFrame(wx.Frame):
 
         sizer_8 = wx.BoxSizer(wx.VERTICAL)
         sizer_9 = wx.BoxSizer(wx.VERTICAL)
+
+        sizer_10 = wx.BoxSizer(wx.VERTICAL)
 
         sizer_4 = wx.StaticBoxSizer(self.sizer_4_staticbox, wx.HORIZONTAL)
         sizer_5 = wx.BoxSizer(wx.VERTICAL)
@@ -202,8 +210,18 @@ class MainFrame(wx.Frame):
         
         sizer_9.Add(self.canvas, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
 
+        sizer_10.Add(self.stats_grid, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
+
+
         self.notebook_1_pane_1.SetSizer(sizer_9)
-        self.notebook_1.AddPage(self.notebook_1_pane_1, u"Gráficos")
+        self.notebook_1_pane_2.SetSizer(sizer_10)
+
+        self.notebook_1.AddPage(self.notebook_1_pane_1, u"Ploteo")
+
+        self.notebook_1.AddPage(self.notebook_1_pane_2, u"Estadísticas")
+
+        #self.notebook_1.AddPage(self, u"Estadisticas")
+
         sizer_8.Add(self.notebook_1, 1, wx.EXPAND, 0)
         sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
         

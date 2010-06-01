@@ -18,6 +18,10 @@ import helpers
 
 from matplotlib.figure import Figure
 
+import os
+
+_path = os.path.abspath(os.path.dirname(__file__)) #la ruta desde donde se ejecuta el programa
+
 class MainFrame(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: GuiMain.__init__
@@ -56,6 +60,32 @@ class MainFrame(wx.Frame):
         self.frame_1_menubar.Append(wxglade_tmp_menu, "A&yuda")
         self.SetMenuBar(self.frame_1_menubar)
         # Menu Bar end
+
+
+        # Tool Bar
+        self.tools_ids = [wx.NewId() for i in range(12)]
+        
+        self.frame_1_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL|wx.TB_DOCKABLE)
+        self.SetToolBar(self.frame_1_toolbar)
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[0], "Nuevo", wx.Bitmap("%s/icons/document-new.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Nuevo archivo", "Crea una nueva secuencia de instrucciones")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[1], "Abrir", wx.Bitmap("%s/icons/document-open.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Abrir archivo", "Abre una secuencia de instrucciones de un archivo")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[2], "Guardar", wx.Bitmap("%s/icons/document-save.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Guardar", "Guarda la secuencia de instrucciones actual")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[3], "Guardar como...", wx.Bitmap("%s/icons/document-save-as.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Guardar como...", "Guarda la secuencia en un nuevo archivo")
+        self.frame_1_toolbar.AddSeparator()
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[4], "Arriba", wx.Bitmap("%s/icons/go-top.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Subir al tope", "Agrupa y sube las intrucciones selecciones al principio")
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[5], "Subir", wx.Bitmap("%s/icons/go-up.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Subir una intrucción", "Sube las instrucciones seleccionadas un paso")
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[6], "Bajar", wx.Bitmap("%s/icons/go-down.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Bajar una instrucción", "Baja las intrucciones seleccionadas un paso")
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[7], "Abajo", wx.Bitmap("%s/icons/go-bottom.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Bajar al final", "Agrupa y baja las instrucciones seleccionadas al final")
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[8], "Borrar", wx.Bitmap("%s/icons/list-remove.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Borrar", "Borra las instrucciones seleccionadas")
+        #self.frame_1_toolbar.AddSeparator()
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[11], u"Añadir procesos aleatorios", wx.Bitmap("%s/icons/wand.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, u"Añadir procesos", u"Añade procesos a la tabla generador aleatoriamente")
+        self.frame_1_toolbar.AddSeparator()
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[9], "Ejecutar paso", wx.Bitmap("%s/icons/go-next.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Ejecutar instrucción", "Ejecuta la siguiente instrucción de la secuencia")
+        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[10], "Actualizar", wx.Bitmap("%s/icons/view-refresh.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Actualizar entorno", "Actualiza los registros y el estado de la pila")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[10], "Ejecutar todo", wx.Bitmap("%s/icons/go-last.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Ejecutar hasta el final", "Ejecuta los pasos necesarios para finalizar todos los procesos")
+        # Tool Bar end
+        
+
 
 
 
@@ -108,6 +138,37 @@ class MainFrame(wx.Frame):
         self.algorithm_list.InsertColumn(0,u'Algoritmo')
         self.algorithm_list.SetColumnWidth(0,250)
    
+        self.Bind(wx.EVT_TOOL, self.actionNew, id=self.tools_ids[0])
+        self.Bind(wx.EVT_TOOL, self.actionOpen, id=self.tools_ids[1])
+        self.Bind(wx.EVT_TOOL, self.actionSave, id=self.tools_ids[2])
+        self.Bind(wx.EVT_TOOL, self.actionSaveAs, id=self.tools_ids[3])
+        #self.Bind(wx.EVT_TOOL, self.action_go_top, id=self.tools_ids[4])
+        #self.Bind(wx.EVT_TOOL, self.action_go_up, id=self.tools_ids[5])
+        #self.Bind(wx.EVT_TOOL, self.action_go_down, id=self.tools_ids[6])
+        #self.Bind(wx.EVT_TOOL, self.action_go_bottom, id=self.tools_ids[7])
+        #self.Bind(wx.EVT_TOOL, self.action_delete, id=self.tools_ids[8])
+        self.Bind(wx.EVT_TOOL, self.action_next_step, id=self.tools_ids[9])
+        self.Bind(wx.EVT_TOOL, self.action_run_all, id=self.tools_ids[10])
+        self.Bind(wx.EVT_TOOL, self.action_add_random_process, id=self.tools_ids[11])
+
+    def action_go_top(self, event):
+        pass
+
+    def action_go_up(self, event):
+        pass
+
+    def action_go_down(self, event):
+        pass
+
+    def action_go_bottom(self, event):
+        pass
+
+    def action_delete(self, event):
+        pass
+
+    def action_refresh_all(self, event):
+        pass
+
 
     def __do_layout(self):
         # begin wxGlade: GuiMain.__do_layout
@@ -335,8 +396,10 @@ class MainFrame(wx.Frame):
                 pass
         return table
                 
-            
-    def run (self):
+    def action_next_step(self, event):
+        pass
+
+    def action_run_all (self,  event):
 
         table = self.get_table_process()
 
@@ -359,7 +422,7 @@ class MainFrame(wx.Frame):
             self.panel_1.canvas.figure.clf()
 
             for num, alg in enumerate(all):
-                time = alg.total_estimated_duration #10     #how long time?
+                time = alg.total_estimated_duration #10     #how long time? TODO: hacer que devuelva un callback cuando finalizaron todos los procesos.
                 for i in range(time) :
                     alg.step()
             

@@ -21,6 +21,7 @@ from matplotlib.figure import Figure
 import os
 
 import matplotlib
+import numpy as np
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
@@ -59,7 +60,11 @@ class MainFrame(wx.Frame):
         #matplotlib
         self.figure = Figure()
         self.canvas = FigureCanvas(self.notebook_1_pane_1, -1, self.figure)
-
+        
+        #matplolib for stats
+        self.stats_panel = wx.Panel(self.notebook_1_pane_2, -1)
+        self.stats_figure = Figure()
+        self.stats_canvas = FigureCanvas(self.stats_panel, -1, self.stats_figure)
         
 
 
@@ -191,6 +196,10 @@ class MainFrame(wx.Frame):
 
         sizer_10 = wx.BoxSizer(wx.VERTICAL)
 
+        sizer_12 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_11 = wx.BoxSizer(wx.HORIZONTAL)
+
+
         sizer_4 = wx.StaticBoxSizer(self.sizer_4_staticbox, wx.HORIZONTAL)
         sizer_5 = wx.BoxSizer(wx.VERTICAL)
         sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
@@ -211,7 +220,13 @@ class MainFrame(wx.Frame):
         
         sizer_9.Add(self.canvas, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
 
-        sizer_10.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
+#        sizer_10.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
+
+        sizer_11.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
+        sizer_10.Add(sizer_11, 1, wx.EXPAND, 0)
+
+        sizer_12.Add(self.stats_panel, 1, flag=wx.ALL | wx.TOP | wx.GROW | wx.EXPAND)
+        sizer_10.Add(sizer_12, 1, wx.EXPAND, 0)
 
 
         self.notebook_1_pane_1.SetSizer(sizer_9)
@@ -547,10 +562,10 @@ class MainFrame(wx.Frame):
                     alg.step()
                 alg.set_ax(self.figure, '%i1%i' % (len(all), num+1))
 
-            self.set_stats_text(all)
+            self.set_stats(all)
             self.canvas.draw()        
 
-    def set_stats_text (self, all):
+    def set_stats (self, all):
         text = ""
         for alg in all:
             text += "%s\n%s\n\n" % (alg.long_name, "="*len(alg.long_name))
@@ -563,4 +578,20 @@ class MainFrame(wx.Frame):
 
         self.stats_text.Clear()
         self.stats_text.AppendText(text)
+        
+        ax = self.stats_figure.add_subplot(121)
+        y = np.arange(len(all))+.5
+        ax.barh(y, [alg.get_media_tr() for alg in reversed(all)], align="center")
+        ax.set_yticks(y)
+        ax.set_yticklabels([alg.short_name for alg in reversed(all)])
+        ax.set_title('Tr medio')
+        ax.grid(True)
 
+        ax = self.stats_figure.add_subplot(122)
+        ax.barh(y, [alg.get_media_rate() for alg in reversed(all)], align="center")
+        ax.set_yticks(y)
+        ax.set_yticklabels([alg.short_name for alg in reversed(all)])
+        ax.set_title('Tr/Ts medio')
+        ax.grid(True)
+
+        self.stats_canvas.draw()

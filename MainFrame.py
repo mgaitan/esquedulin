@@ -69,7 +69,7 @@ class MainFrame(wx.Frame):
 
 
         # Menu Bar
-        menues_ids = [wx.NewId() for i in range(7)]
+        menues_ids = [wx.NewId() for i in range(9)]
         
         self.frame_1_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
@@ -80,6 +80,12 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu.AppendSeparator()
         wxglade_tmp_menu.Append(menues_ids[4], "&Salir", "", wx.ITEM_NORMAL)
         self.frame_1_menubar.Append(wxglade_tmp_menu, "&Archivo")
+        
+        wxglade_tmp_menu = wx.Menu()
+        wxglade_tmp_menu.Append(menues_ids[7], "&Agregar procesos", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.Append(menues_ids[8], "&Ejecutar todo", "", wx.ITEM_NORMAL)
+        self.frame_1_menubar.Append(wxglade_tmp_menu, "&Acciones")
+
         wxglade_tmp_menu = wx.Menu()
         wxglade_tmp_menu.Append(menues_ids[5], u"Índ&ice", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.AppendSeparator()
@@ -123,6 +129,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.action_exit, id=menues_ids[4])
         self.Bind(wx.EVT_MENU, self.actionShowHelp, id=menues_ids[5])
         self.Bind(wx.EVT_MENU, self.actionShowAbout, id=menues_ids[6])
+    
+        self.Bind(wx.EVT_MENU, self.action_add_random_process, id=menues_ids[7])
+        self.Bind(wx.EVT_MENU, self.action_run_all, id=menues_ids[8])
 
 
 

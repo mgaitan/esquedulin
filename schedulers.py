@@ -183,16 +183,12 @@ class Algorithm():
 
     def set_process_table(self, process_table):
         """ Function doc """
-
-        print "tabla de procesos", process_table
-
         
 
         if self.factory is None or process_table is not self.factory.process_table:        
             self.factory = ProcessFactory(process_table, self.clock)
             for process in process_table:
                 #TODO hay que considerar el idle time
-                print process
                 self.total_estimated_duration += process['estimated_duration']
 
     
@@ -270,8 +266,6 @@ class Algorithm():
         vspace = 1.5
         #x = np.arange((self.clock.time if self.clock.time < self.total_estimated_duration else self.total_estimated_duration) + 1 )
         x = np.arange(self.clock.time + 1)
-        
-        print x
 
         ax = fig.add_subplot(order)
         ax.clear()
@@ -281,7 +275,11 @@ class Algorithm():
             #print x_range, life_in_binary
             ax.plot(x_range, np.array(life_in_binary)-vspace*(i+1),  linestyle="steps", drawstyle='steps-post', label=p.name,lw=2)
 
-        ax.set_xticks(x)
+
+        
+
+        ax.set_xticks(np.arange(self.clock.time, step=(self.clock.time)/20 + 1))
+
         ax.set_yticks(np.arange(-vspace,-(1+len(all_process))*vspace, -vspace))
         ax.set_yticklabels([p.name for p in all_process])
         #ax.set_title(self.long_name)

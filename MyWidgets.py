@@ -4,8 +4,7 @@
 import wx
 import wx.grid as gridlib
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+
 
 
 class NewEnterHandlingGrid(gridlib.Grid):
@@ -39,11 +38,4 @@ class NewEnterHandlingGrid(gridlib.Grid):
                 # needs to do that
                 pass
 
-
-class MplPanel(wx.Panel): 
-    def __init__(self, *arg, **kwds):
-        wx.Panel.__init__(self, *arg, **kwds)
-        self.figure = Figure()
-        self.canvas = FigureCanvas(self, wx.ID_ANY, self.figure)
-        
         

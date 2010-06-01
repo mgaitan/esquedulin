@@ -158,7 +158,6 @@ class FB(Algorithm):
             return
 
         Algorithm.__init__(self,procesos)
-        self.short_name = u'FB'
         self.q_base = q
         self.q = 1 if exp else q     #lenght of initial turn
         self.exp = exp
@@ -166,6 +165,7 @@ class FB(Algorithm):
         
 
         self.long_name = u'Feedback (Q=%i%s)' % (self.q_base, '^i' if exp else '')
+        self.short_name = u'FB (Q=%i%s)' % (self.q_base, '^i' if exp else '')
         self.description = self.__doc__
         #self.preferent = True
 

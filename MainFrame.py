@@ -5,6 +5,7 @@ import wx
 import wx.grid
 import random
 import inspect
+import pickle
 # begin wxGlade: dependencies
 # end wxGlade
 
@@ -12,13 +13,19 @@ import inspect
 
 # end wxGlade
 
-from MyWidgets import NewEnterHandlingGrid, MplPanel
+from MyWidgets import NewEnterHandlingGrid
 from AboutFrame import AboutFrame       #la ventana de "Acerca de" donde estamos nosotros
 import helpers
 
 from matplotlib.figure import Figure
-
 import os
+
+import matplotlib
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
+
+
 
 _path = os.path.abspath(os.path.dirname(__file__)) #la ruta desde donde se ejecuta el programa
 
@@ -29,6 +36,9 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwds)
         self.sizer_4_staticbox = wx.StaticBox(self, -1, "Algoritmos")
         self.sizer_3_staticbox = wx.StaticBox(self, -1, "Procesos")
+
+        self.sizer_8_staticbox = wx.StaticBox(self, -1, "Resultado")
+
         #self.process_list_widget = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.process_grid = NewEnterHandlingGrid(self)
 
@@ -39,7 +49,12 @@ class MainFrame(wx.Frame):
         self.algorithm_list = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER|wx.FULL_REPAINT_ON_RESIZE)
         self.algorithm_list_data = {}
 
-        self.panel_1 = MplPanel(self, -1)
+        #matplotlib
+        self.figure = Figure()
+        self.canvas = FigureCanvas(self, -1, self.figure)
+
+
+
 
         # Menu Bar
         menues_ids = [wx.NewId() for i in range(7)]
@@ -63,7 +78,7 @@ class MainFrame(wx.Frame):
 
 
         # Tool Bar
-        self.tools_ids = [wx.NewId() for i in range(12)]
+        self.tools_ids = [wx.NewId() for i in range(13)]
         
         self.frame_1_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL|wx.TB_DOCKABLE)
         self.SetToolBar(self.frame_1_toolbar)
@@ -78,10 +93,10 @@ class MainFrame(wx.Frame):
         #self.frame_1_toolbar.AddLabelTool(self.tools_ids[7], "Abajo", wx.Bitmap("%s/icons/go-bottom.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Bajar al final", "Agrupa y baja las instrucciones seleccionadas al final")
         #self.frame_1_toolbar.AddLabelTool(self.tools_ids[8], "Borrar", wx.Bitmap("%s/icons/list-remove.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Borrar", "Borra las instrucciones seleccionadas")
         #self.frame_1_toolbar.AddSeparator()
-        self.frame_1_toolbar.AddLabelTool(self.tools_ids[11], u"Añadir procesos aleatorios", wx.Bitmap("%s/icons/wand.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, u"Añadir procesos", u"Añade procesos a la tabla generador aleatoriamente")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[11], u"Añadir procesos aleatorios", wx.Bitmap("%s/icons/wand.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, u"Añadir procesos aleatorios", u"Añade procesos a la tabla generador aleatoriamente")
         self.frame_1_toolbar.AddSeparator()
         self.frame_1_toolbar.AddLabelTool(self.tools_ids[9], "Ejecutar paso", wx.Bitmap("%s/icons/go-next.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Ejecutar instrucción", "Ejecuta la siguiente instrucción de la secuencia")
-        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[10], "Actualizar", wx.Bitmap("%s/icons/view-refresh.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Actualizar entorno", "Actualiza los registros y el estado de la pila")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[12], "Actualizar", wx.Bitmap("%s/icons/view-refresh.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Actualizar entorno", "Actualiza los registros y el estado de la pila")
         self.frame_1_toolbar.AddLabelTool(self.tools_ids[10], "Ejecutar todo", wx.Bitmap("%s/icons/go-last.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Ejecutar hasta el final", "Ejecuta los pasos necesarios para finalizar todos los procesos")
         # Tool Bar end
         
@@ -89,11 +104,11 @@ class MainFrame(wx.Frame):
 
 
 
-        self.Bind(wx.EVT_MENU, self.actionNew, id=menues_ids[0])
-        self.Bind(wx.EVT_MENU, self.actionOpen, id=menues_ids[1])
-        self.Bind(wx.EVT_MENU, self.actionSave, id=menues_ids[2])
-        self.Bind(wx.EVT_MENU, self.actionSaveAs, id=menues_ids[3])
-        self.Bind(wx.EVT_MENU, self.actionExit, id=menues_ids[4])
+        self.Bind(wx.EVT_MENU, self.action_new, id=menues_ids[0])
+        self.Bind(wx.EVT_MENU, self.action_open, id=menues_ids[1])
+        self.Bind(wx.EVT_MENU, self.action_save, id=menues_ids[2])
+        self.Bind(wx.EVT_MENU, self.action_save_as, id=menues_ids[3])
+        self.Bind(wx.EVT_MENU, self.action_exit, id=menues_ids[4])
         self.Bind(wx.EVT_MENU, self.actionShowHelp, id=menues_ids[5])
         self.Bind(wx.EVT_MENU, self.actionShowAbout, id=menues_ids[6])
 
@@ -113,12 +128,15 @@ class MainFrame(wx.Frame):
                         "Saliendo...", wx.YES_NO)
        
         self.dirname = ''
+        
         self.filename = None
         self.modificado = False
 
+
     def __set_properties(self):
         # begin wxGlade: GuiMain.__set_properties
-        self.SetTitle("frame_1")
+        self.titulo = 'Esquedulin'
+        self.SetTitle(self.titulo)
         self.SetBackgroundColour(wx.Colour(230, 221, 213))
         
         # end wxGlade
@@ -138,18 +156,81 @@ class MainFrame(wx.Frame):
         self.algorithm_list.InsertColumn(0,u'Algoritmo')
         self.algorithm_list.SetColumnWidth(0,250)
    
-        self.Bind(wx.EVT_TOOL, self.actionNew, id=self.tools_ids[0])
-        self.Bind(wx.EVT_TOOL, self.actionOpen, id=self.tools_ids[1])
-        self.Bind(wx.EVT_TOOL, self.actionSave, id=self.tools_ids[2])
-        self.Bind(wx.EVT_TOOL, self.actionSaveAs, id=self.tools_ids[3])
+        self.Bind(wx.EVT_TOOL, self.action_new, id=self.tools_ids[0])
+        self.Bind(wx.EVT_TOOL, self.action_open, id=self.tools_ids[1])
+        self.Bind(wx.EVT_TOOL, self.action_save, id=self.tools_ids[2])
+        self.Bind(wx.EVT_TOOL, self.action_save_as, id=self.tools_ids[3])
         #self.Bind(wx.EVT_TOOL, self.action_go_top, id=self.tools_ids[4])
         #self.Bind(wx.EVT_TOOL, self.action_go_up, id=self.tools_ids[5])
         #self.Bind(wx.EVT_TOOL, self.action_go_down, id=self.tools_ids[6])
         #self.Bind(wx.EVT_TOOL, self.action_go_bottom, id=self.tools_ids[7])
         #self.Bind(wx.EVT_TOOL, self.action_delete, id=self.tools_ids[8])
-        self.Bind(wx.EVT_TOOL, self.action_next_step, id=self.tools_ids[9])
+        self.Bind(wx.EVT_TOOL, self.action_run_next, id=self.tools_ids[9])
         self.Bind(wx.EVT_TOOL, self.action_run_all, id=self.tools_ids[10])
         self.Bind(wx.EVT_TOOL, self.action_add_random_process, id=self.tools_ids[11])
+        self.Bind(wx.EVT_TOOL, self.action_refresh_all, id=self.tools_ids[12])
+
+    def __do_layout(self):
+        # begin wxGlade: GuiMain.__do_layout
+        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_2 = wx.BoxSizer(wx.VERTICAL)
+        sizer_8 = wx.StaticBoxSizer(self.sizer_8_staticbox, wx.VERTICAL)
+        sizer_4 = wx.StaticBoxSizer(self.sizer_4_staticbox, wx.HORIZONTAL)
+        sizer_5 = wx.BoxSizer(wx.VERTICAL)
+        sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
+        sizer_3 = wx.StaticBoxSizer(self.sizer_3_staticbox, wx.HORIZONTAL)
+        sizer_3.Add(self.process_grid, 1, wx.EXPAND, 0)
+        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
+        sizer_6.Add(self.algorithm_combo, 3, wx.TOP, 3)
+        sizer_6.Add(self.algorithm_button, 0, wx.RIGHT, 0)
+        sizer_5.Add(sizer_6, 0, wx.EXPAND, 0)
+        sizer_7.Add(self.algorithm_list, 1, wx.EXPAND, 0)
+        sizer_5.Add(sizer_7, 1, wx.EXPAND, 0)
+        sizer_4.Add(sizer_5, 1, wx.EXPAND, 0)
+        sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
+        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
+        #sizer_1.Add(self.panel_1, 2,  border=5, flag=wx.LEFT | wx.TOP | wx.GROW)
+        
+        sizer_8.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+
+        sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
+
+        
+
+        self.SetSizer(sizer_1)
+        sizer_1.Fit(self)
+        self.Layout()
+        self.Centre()
+        # end wxGlade
+
+        self.add_toolbar(sizer_8)
+
+
+# end of class GuiMain
+
+    def add_toolbar(self, sizer):
+        self.toolbar = NavigationToolbar2Wx(self.canvas)
+        self.toolbar.Realize()
+        if wx.Platform == '__WXMAC__':
+            # Mac platform (OSX 10.3, MacPython) does not seem to cope with
+            # having a toolbar in a sizer. This work-around gets the buttons
+            # back, but at the expense of having the toolbar at the top
+            self.SetToolBar(self.toolbar)
+        else:
+            # On Windows platform, default window size is incorrect, so set
+            # toolbar width to figure width.
+            tw, th = self.toolbar.GetSizeTuple()
+            fw, fh = self.canvas.GetSizeTuple()
+            # By adding toolbar in sizer, we are able to put it at the bottom
+            # of the frame - so appearance is closer to GTK version.
+            # As noted above, doesn't work for Mac.
+            self.toolbar.SetSize(wx.Size(fw, th))
+            sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
+        # update the axes menu on the toolbar
+        self.toolbar.update()
+
+
 
     def action_go_top(self, event):
         pass
@@ -170,33 +251,7 @@ class MainFrame(wx.Frame):
         pass
 
 
-    def __do_layout(self):
-        # begin wxGlade: GuiMain.__do_layout
-        sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_4 = wx.StaticBoxSizer(self.sizer_4_staticbox, wx.HORIZONTAL)
-        sizer_5 = wx.BoxSizer(wx.VERTICAL)
-        sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_6 = wx.BoxSizer(wx.HORIZONTAL)
-        sizer_3 = wx.StaticBoxSizer(self.sizer_3_staticbox, wx.HORIZONTAL)
-        sizer_3.Add(self.process_grid, 1, wx.EXPAND, 0)
-        sizer_2.Add(sizer_3, 1, wx.EXPAND, 0)
-        sizer_6.Add(self.algorithm_combo, 3, wx.TOP, 3)
-        sizer_6.Add(self.algorithm_button, 0, wx.RIGHT, 0)
-        sizer_5.Add(sizer_6, 0, wx.EXPAND, 0)
-        sizer_7.Add(self.algorithm_list, 1, wx.EXPAND, 0)
-        sizer_5.Add(sizer_7, 1, wx.EXPAND, 0)
-        sizer_4.Add(sizer_5, 1, wx.EXPAND, 0)
-        sizer_2.Add(sizer_4, 1, wx.EXPAND, 0)
-        sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
-        sizer_1.Add(self.panel_1, 2, wx.EXPAND, 0)
-        self.SetSizer(sizer_1)
-        sizer_1.Fit(self)
-        self.Layout()
-        self.Centre()
-        # end wxGlade
-
-# end of class GuiMain
+ 
 
 
 
@@ -210,7 +265,7 @@ class MainFrame(wx.Frame):
 
 
 
-    def actionOpen(self,event):
+    def action_open(self,event):
         # In this case, the dialog is created within the method because
         # the directory name, etc, may be changed during the running of the
         # application. In theory, you could create one earlier, store it in
@@ -224,22 +279,36 @@ class MainFrame(wx.Frame):
             # Open the file, read the contents and set them into
             # the text edit window
             filehandle=open(os.path.join(self.dirname, self.filename),'r')
-            lista = pickle.load(filehandle)
+            data = pickle.load(filehandle)
             
-            #update list
-            self.instructionsList.updateList(lista)
+            
+            self.set_table_process(data[0])
+            
+            self.set_algorithm_table(data[1])            
 
+            self.figure.clf()
             filehandle.close()
 
             # Report on name of latest file read
             self.SetTitle("%s <%s>" % (self.titulo, self.filename))
             
             self.modificado = False
-            self.updateStatusBar(u"Archivo %s abierto correctamente" % self.filename)
+
         dlg.Destroy()
 
+    def set_algorithm_table(self, algorithm_table):
+        self.algorithm_list_data = algorithm_table
+        self.algorithm_list.DeleteAllItems()
+        for alg_key in sorted(self.algorithm_list_data.keys()):
+            alg_name, params = self.algorithm_list_data[alg_key]
+            self.algorithm_list.Append([alg_name + str(params)])  
+            #TODO: this is ugly, right?
+            self.algorithm_list.SetItemData(self.algorithm_list.GetItemCount() - 1, alg_key)
+        
+    
 
-    def actionNew(self, event): # wxGlade: MainFrame.<event_handler>
+
+    def action_new(self, event): # wxGlade: MainFrame.<event_handler>
         if self.modificado:
             dlg = wx.MessageDialog(None, u'Si no guarda, se perderán permanentemente los cambios realizados\n¿Desea guardar antes?', 
                 u'Los cambios no ha sido guardados', 
@@ -247,62 +316,64 @@ class MainFrame(wx.Frame):
                 
             selection = dlg.ShowModal()
             if selection == wx.ID_YES:
-                self.actionSave(event)
+                self.action_save(event)
             elif selection == wx.ID_CANCEL:
                 evtent.Skip()
             dlg.Destroy() 
         
-        self.instructionsList.DeleteAllItems()
+        #clean interface
+        self.algorithm_list_data = {}
+        self.algorithm_list.DeleteAllItems()
+        self.process_grid.ClearGrid()
+        self.figure.clear()
         self.filename = None
+        self.modified = False
         self.SetTitle(self.titulo)
 
+        
 
 
-    def actionSaveAs(self,event):
+    def action_save_as(self,event):
         """guarda la lista de intrucciones actual dando un nombre nuevo"""
-        dlg = wx.FileDialog(self, "Elija un archivo", self.dirname, "", "*.fpu", \
+        dlg = wx.FileDialog(self, "Elija un archivo", self.dirname, "", "*.esq", \
                 wx.SAVE | wx.OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             # Open the file for write, write, close
             self.filename=dlg.GetFilename()
             self.dirname=dlg.GetDirectory()
-            self.actionSave(event)
-            
-        # Get rid of the dialog to keep things tidy
+            self.action_save(event)
+
         dlg.Destroy()
 
-    def actionSave(self,event):
+    def action_save(self,event):
         """guarda la lista de instrucciones en el archivo abierto. Si no existe, 
         abre el dialogo Guardar como"""
 
         if self.filename is None:
-            self.actionSaveAs(event)
+            self.action_save_as(event)
         else:
-            list = self.instructionsList.get_list()
+            data = (self.get_table_process(), self.algorithm_list_data)
             filehandle=open(os.path.join(self.dirname, self.filename),'w')
-            pickle.dump(list,filehandle)
+            pickle.dump(data,filehandle)
             filehandle.close()
             self.SetTitle("%s <%s>" % (self.titulo, self.filename))
             self.modificado = False
-            
-            self.updateStatusBar(u"Archivo %s guardado" % filename)
-        return
 
 
 
-    def actionExit(self, event):
+    def action_exit(self, event):
         """Salir y cerrar la puerta"""
         self.Close(True)
 
     def onCloseWindow(self, event):
         """al salir se ejecuta este método que verifica el estado del archivo"""
         if self.modificado:
-            #self.actionSave(event)
+            #self.action_save(event)
             dlg = wx.MessageDialog(self, "El archivo no se ha guardado\nDesea guardarlo?", "Salir", wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION)
             answer = dlg.ShowModal()
             dlg.Destroy()
             if answer == wx.ID_YES:
-                self.actionSave(event)
+                self.action_save(event)
             elif answer == wx.ID_NO:
                 self.Destroy() # frame
         else:
@@ -319,7 +390,7 @@ class MainFrame(wx.Frame):
             arg_spec = inspect.getargspec(getattr(alg, '__init__'))
             params = {}
             
-            #this algorithm request parameters
+            #does this algorithm request parameters?
             for i, arg in enumerate(arg_spec.args[2:]):
                 dlg = wx.TextEntryDialog(self, '%s?' % arg, u'Parámentros de %s' % alg_name, 
                                             defaultValue=str(arg_spec.defaults[i+1]))   #first-one not self parameter is None (table_process)
@@ -329,12 +400,25 @@ class MainFrame(wx.Frame):
                     #canceled
                     return None
 
+            #not allow repeated algorithms
+            if (alg_name, params) in self.algorithm_list_data.values():
+                wx.Bell()
+                return
+        
+            
             #asociating an entry in the list with a dictionary of algorithm instances 
-            id = wx.NewId()
+            while True:
+                id = wx.NewId()
+                if id not in self.algorithm_list_data.keys():
+                    break
+
             self.algorithm_list_data[ id ] = (alg_name, params)
             self.algorithm_list.Append([alg_name + str(params)])  
-            #TODO: this is ugly, right?
+            #TODO: this is ugly, right? 
             self.algorithm_list.SetItemData(self.algorithm_list.GetItemCount() - 1, id)
+
+            self.modified = True 
+            self.SetTitle(self.GetTitle() + u' *')
             
         else:
             #not valid algorithm
@@ -344,6 +428,8 @@ class MainFrame(wx.Frame):
 
 
     def action_add_random_process(self, event):
+        """generate and add random process to grid"""
+
         dlg = wx.TextEntryDialog(self, '¿Cuántos procesos desea crear?', 'Crear procesos aleatoriamente', defaultValue=u'5')
         while True:
             if dlg.ShowModal()  == wx.ID_OK:               
@@ -376,6 +462,7 @@ class MainFrame(wx.Frame):
         
 
     def set_table_process(self, table):
+        self.process_grid.ClearGrid()
         table.sort(key=lambda k: k['order']) #ordering
         for row, p in enumerate(table):
             for col, col_key in enumerate(['name', 'init_time', 'estimated_duration']):
@@ -396,19 +483,18 @@ class MainFrame(wx.Frame):
                 pass
         return table
                 
-    def action_next_step(self, event):
+    def action_run_next(self, event):
         pass
+
+
 
     def action_run_all (self,  event):
 
-        table = self.get_table_process()
-
-        
+        table = self.get_table_process()        
 
         if not table:
             return
         else:
-
             all = []
             for alg_key in sorted(self.algorithm_list_data.keys()):
                 alg_name, params = self.algorithm_list_data[alg_key]
@@ -419,16 +505,19 @@ class MainFrame(wx.Frame):
                 all.append(algorithm)
 
             
-            self.panel_1.canvas.figure.clf()
+            self.figure.clf()
 
             for num, alg in enumerate(all):
-                time = alg.total_estimated_duration #10     #how long time? TODO: hacer que devuelva un callback cuando finalizaron todos los procesos.
-                for i in range(time) :
+                
+                #time = alg.total_estimated_duration #10     #how long time? TODO: hacer que devuelva un callback cuando finalizaron todos los procesos.
+                #for i in range(time) :
+                while len(alg.factory.process_table) != len(alg.finished):
                     alg.step()
             
 
-                alg.set_ax(self.panel_1.figure, '%i1%i' % (len(all), num+1))
+                alg.set_ax(self.figure, '%i1%i' % (len(all), num+1))
         
-            self.panel_1.figure.canvas.draw()        
+            self.canvas.draw()        
             
             
+

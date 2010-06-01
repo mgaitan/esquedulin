@@ -200,16 +200,17 @@ class MainFrame(wx.Frame):
         #sizer_1.Add(self.panel_1, 2,  border=5, flag=wx.LEFT | wx.TOP | wx.GROW)
         
         
-        sizer_9.Add(self.canvas, 1, border=5, flag=wx.LEFT | wx.TOP | wx.GROW)
+        sizer_9.Add(self.canvas, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
+
         self.notebook_1_pane_1.SetSizer(sizer_9)
-        self.notebook_1.AddPage(self.notebook_1_pane_1, "tab1")
-        sizer_8.Add(self.notebook_1, 2, wx.EXPAND, 0)
-        sizer_1.Add(sizer_8, 1, wx.EXPAND, 0)
+        self.notebook_1.AddPage(self.notebook_1_pane_1, u"Gráficos")
+        sizer_8.Add(self.notebook_1, 1, wx.EXPAND, 0)
+        sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
         
 
         #sizer_8.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
 
-        sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
+        
 
         
 

@@ -37,7 +37,10 @@ class MainFrame(wx.Frame):
         self.sizer_4_staticbox = wx.StaticBox(self, -1, "Algoritmos")
         self.sizer_3_staticbox = wx.StaticBox(self, -1, "Procesos")
 
-        self.sizer_8_staticbox = wx.StaticBox(self, -1, "Resultado")
+        self.notebook_1 = wx.Notebook(self, -1, style=0)
+        self.notebook_1_pane_1 = wx.Panel(self.notebook_1, -1)
+
+        #self.sizer_8_staticbox = wx.StaticBox(self, -1, "Resultado")
 
         #self.process_list_widget = wx.ListCtrl(self, -1, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
         self.process_grid = NewEnterHandlingGrid(self)
@@ -51,7 +54,7 @@ class MainFrame(wx.Frame):
 
         #matplotlib
         self.figure = Figure()
-        self.canvas = FigureCanvas(self, -1, self.figure)
+        self.canvas = FigureCanvas(self.notebook_1_pane_1, -1, self.figure)
 
 
 
@@ -174,7 +177,11 @@ class MainFrame(wx.Frame):
         # begin wxGlade: GuiMain.__do_layout
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
         sizer_2 = wx.BoxSizer(wx.VERTICAL)
-        sizer_8 = wx.StaticBoxSizer(self.sizer_8_staticbox, wx.VERTICAL)
+        #sizer_8 = wx.StaticBoxSizer(self.sizer_8_staticbox, wx.VERTICAL)
+
+        sizer_8 = wx.BoxSizer(wx.VERTICAL)
+        sizer_9 = wx.BoxSizer(wx.VERTICAL)
+
         sizer_4 = wx.StaticBoxSizer(self.sizer_4_staticbox, wx.HORIZONTAL)
         sizer_5 = wx.BoxSizer(wx.VERTICAL)
         sizer_7 = wx.BoxSizer(wx.HORIZONTAL)
@@ -192,7 +199,15 @@ class MainFrame(wx.Frame):
         sizer_1.Add(sizer_2, 1, wx.EXPAND, 0)
         #sizer_1.Add(self.panel_1, 2,  border=5, flag=wx.LEFT | wx.TOP | wx.GROW)
         
-        sizer_8.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        
+        sizer_9.Add(self.canvas, 1, border=5, flag=wx.LEFT | wx.TOP | wx.GROW)
+        self.notebook_1_pane_1.SetSizer(sizer_9)
+        self.notebook_1.AddPage(self.notebook_1_pane_1, "tab1")
+        sizer_8.Add(self.notebook_1, 2, wx.EXPAND, 0)
+        sizer_1.Add(sizer_8, 1, wx.EXPAND, 0)
+        
+
+        #sizer_8.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
 
         sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
 
@@ -204,7 +219,7 @@ class MainFrame(wx.Frame):
         self.Centre()
         # end wxGlade
 
-        self.add_toolbar(sizer_8)
+        self.add_toolbar(sizer_9)
 
 
 # end of class GuiMain

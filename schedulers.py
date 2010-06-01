@@ -3,6 +3,8 @@ import numpy as np
 import sys
 #from helpers import Singleton, logger
 
+from texttable import Texttable
+
 class Clock():
     # __metaclass__ = Singleton
     def __init__(self):
@@ -103,11 +105,29 @@ class Process():
     def __str__(self):
         return self.__repr__()
 
-    def __repr__(self):
-        return "Process %s (%s). CPU = %i | WT = %i | INIT = %i | END = %i | ET = %i | RT = %i | N = %i  " % (self.name, 
-                self.status, self.cpu_time, self.waiting_time, self.init_time, self.end_time, self.estimated_duration, 
-                self.remaining_time, self.nice)
+    def get_tr(self):
+        if self.end_time != -1:
+            return self.end_time - self.init_time
+        else:
+            return -1
 
+    def get_rate(self):
+        if self.end_time != -1:
+            return float(self.get_tr())/float(self.estimated_duration)
+        else:
+            return -1
+
+
+    def __repr__(self):
+
+        table = Texttable()
+        
+        table.add_rows([ [ 'Process' , 'init', 'end', 'Tr', 'Tr/Ts', 'wait', 'cpu', 'est Ts', 'remain'] , 
+                         [ "%s (%s)" % (self.name, self.status[0:4]), self.init_time, \
+                            self.end_time, self.get_tr(), "%.2f" % self.get_rate(), self.waiting_time, \
+                            self.cpu_time, self.estimated_duration, self.remaining_time  ] ])
+        
+        return table.draw()
 
 
     #@logger("Process")        
@@ -203,7 +223,12 @@ class Algorithm():
         for process in self.process_list:
             sal += process.__str__() + "\n"
         return sal
+
+    def get_media_tr(self):
+        return sum([p.get_tr() for p in self.finished])/float(len(self.finished))
     
+    def get_media_rate(self):
+        return sum([p.get_rate() for p in self.finished])/float(len(self.finished))
 
 
     #@logger("Algorithm")

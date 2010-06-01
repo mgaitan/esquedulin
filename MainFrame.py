@@ -42,7 +42,7 @@ class MainFrame(wx.Frame):
         self.notebook_1_pane_2 = wx.Panel(self.notebook_1, -1)
 
 
-        self.stats_grid = wx.grid.Grid(self.notebook_1_pane_2, -1, size=(1, 1))
+        self.stats_text = wx.TextCtrl(self.notebook_1_pane_2, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY)
 
         #self.sizer_8_staticbox = wx.StaticBox(self, -1, "Resultado")
 
@@ -60,7 +60,7 @@ class MainFrame(wx.Frame):
         self.figure = Figure()
         self.canvas = FigureCanvas(self.notebook_1_pane_1, -1, self.figure)
 
-
+        
 
 
         # Menu Bar
@@ -177,7 +177,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.action_add_random_process, id=self.tools_ids[11])
         self.Bind(wx.EVT_TOOL, self.action_refresh_all, id=self.tools_ids[12])
 
-        self.stats_grid.CreateGrid(30, 30)
+        #self.stats_grid.CreateGrid(30, 30)
+        self.stats_text.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, face="Courier New"))
 
     def __do_layout(self):
         # begin wxGlade: GuiMain.__do_layout
@@ -210,7 +211,7 @@ class MainFrame(wx.Frame):
         
         sizer_9.Add(self.canvas, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
 
-        sizer_10.Add(self.stats_grid, 1, border=1, flag=wx.LEFT | wx.TOP | wx.GROW)
+        sizer_10.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
 
 
         self.notebook_1_pane_1.SetSizer(sizer_9)
@@ -542,16 +543,24 @@ class MainFrame(wx.Frame):
             self.figure.clf()
 
             for num, alg in enumerate(all):
-                
-                #time = alg.total_estimated_duration #10     #how long time? TODO: hacer que devuelva un callback cuando finalizaron todos los procesos.
-                #for i in range(time) :
-                while len(alg.factory.process_table) != len(alg.finished):
+                while len(alg.factory.process_table) != len(alg.finished):  #run until all finish
                     alg.step()
-            
-
                 alg.set_ax(self.figure, '%i1%i' % (len(all), num+1))
-        
+
+            self.set_stats_text(all)
             self.canvas.draw()        
+
+    def set_stats_text (self, all):
+        text = ""
+        for alg in all:
+            text += "%s\n%s\n\n" % (alg.long_name, "="*len(alg.long_name))
+            for p in all[0].finished:
+                text += repr(p) + "\n"
             
-            
+            text += "Tr media = %.3f\n" % alg.get_media_tr()
+            text += "Tr/Ts media = %.3f\n\n" % alg.get_media_rate()
+            text += "%s\n\n" % ("*"*78)
+
+        self.stats_text.Clear()
+        self.stats_text.AppendText(text)
 

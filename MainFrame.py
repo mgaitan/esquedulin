@@ -69,7 +69,7 @@ class MainFrame(wx.Frame):
 
 
         # Menu Bar
-        menues_ids = [wx.NewId() for i in range(9)]
+        menues_ids = [wx.NewId() for i in range(10)]
         
         self.frame_1_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
@@ -84,6 +84,7 @@ class MainFrame(wx.Frame):
         wxglade_tmp_menu = wx.Menu()
         wxglade_tmp_menu.Append(menues_ids[7], "&Agregar procesos", "", wx.ITEM_NORMAL)
         wxglade_tmp_menu.Append(menues_ids[8], "&Ejecutar todo", "", wx.ITEM_NORMAL)
+        wxglade_tmp_menu.Append(menues_ids[8], "E&liminar algoritmos seleccionados", "", wx.ITEM_NORMAL)
         self.frame_1_menubar.Append(wxglade_tmp_menu, "&Acciones")
 
         wxglade_tmp_menu = wx.Menu()
@@ -132,7 +133,7 @@ class MainFrame(wx.Frame):
     
         self.Bind(wx.EVT_MENU, self.action_add_random_process, id=menues_ids[7])
         self.Bind(wx.EVT_MENU, self.action_run_all, id=menues_ids[8])
-
+        self.Bind(wx.EVT_MENU, self.action_delete, id=menues_ids[9])
 
 
         self.__set_properties()

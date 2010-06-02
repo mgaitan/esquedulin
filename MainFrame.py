@@ -109,7 +109,7 @@ class MainFrame(wx.Frame):
         #self.frame_1_toolbar.AddLabelTool(self.tools_ids[5], "Subir", wx.Bitmap("%s/icons/go-up.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Subir una intrucción", "Sube las instrucciones seleccionadas un paso")
         #self.frame_1_toolbar.AddLabelTool(self.tools_ids[6], "Bajar", wx.Bitmap("%s/icons/go-down.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Bajar una instrucción", "Baja las intrucciones seleccionadas un paso")
         #self.frame_1_toolbar.AddLabelTool(self.tools_ids[7], "Abajo", wx.Bitmap("%s/icons/go-bottom.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Bajar al final", "Agrupa y baja las instrucciones seleccionadas al final")
-        #self.frame_1_toolbar.AddLabelTool(self.tools_ids[8], "Borrar", wx.Bitmap("%s/icons/list-remove.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Borrar", "Borra las instrucciones seleccionadas")
+        self.frame_1_toolbar.AddLabelTool(self.tools_ids[8], "Eliminar", wx.Bitmap("%s/icons/list-remove.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, "Borrar", "Borra algoritmos seleccionados")
         #self.frame_1_toolbar.AddSeparator()
         self.frame_1_toolbar.AddLabelTool(self.tools_ids[11], u"Añadir procesos aleatorios", wx.Bitmap("%s/icons/wand.png" % _path, wx.BITMAP_TYPE_ANY), wx.NullBitmap, wx.ITEM_NORMAL, u"Añadir procesos aleatorios", u"Añade procesos a la tabla generador aleatoriamente")
         self.frame_1_toolbar.AddSeparator()
@@ -185,7 +185,7 @@ class MainFrame(wx.Frame):
         #self.Bind(wx.EVT_TOOL, self.action_go_up, id=self.tools_ids[5])
         #self.Bind(wx.EVT_TOOL, self.action_go_down, id=self.tools_ids[6])
         #self.Bind(wx.EVT_TOOL, self.action_go_bottom, id=self.tools_ids[7])
-        #self.Bind(wx.EVT_TOOL, self.action_delete, id=self.tools_ids[8])
+        self.Bind(wx.EVT_TOOL, self.action_delete, id=self.tools_ids[8])
         self.Bind(wx.EVT_TOOL, self.action_run_next, id=self.tools_ids[9])
         self.Bind(wx.EVT_TOOL, self.action_run_all, id=self.tools_ids[10])
         self.Bind(wx.EVT_TOOL, self.action_add_random_process, id=self.tools_ids[11])
@@ -304,7 +304,30 @@ class MainFrame(wx.Frame):
         pass
 
     def action_delete(self, event):
-        pass
+        """delete selected algorithms"""
+
+        def get_selected_items(list):
+            selection = []
+            # start at -1 to get the first selected item
+            current = -1
+            while True:
+                next = get_next_selected(list, current)
+                if next == -1:
+                    return selection
+                selection.append(next)
+                current = next
+        
+        def get_next_selected(list, current):
+            return list.GetNextItem(current,
+                                    wx.LIST_NEXT_ALL,
+                                    wx.LIST_STATE_SELECTED) 
+
+        for key in get_selected_items(self.algorithm_list):
+            self.algorithm_list_data.pop(self.algorithm_list.GetItemData(key)) #delete from data
+            self.algorithm_list.DeleteItem(key) #delete from listctrl
+            
+
+
 
     def action_refresh_all(self, event):
         pass

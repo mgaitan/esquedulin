@@ -57,9 +57,9 @@ class MainFrame(wx.Frame):
         self.canvas = FigureCanvas(self.notebook_1_pane_1, -1, self.figure)
         
         #matplolib for stats
-        self.stats_panel = wx.Panel(self.notebook_1_pane_2, -1)
+        #self.stats_panel = wx.Panel(self.notebook_1_pane_2, -1)
         self.stats_figure = Figure()
-        self.stats_canvas = FigureCanvas(self.stats_panel, -1, self.stats_figure)
+        self.stats_canvas = FigureCanvas(self.notebook_1_pane_2, -1, self.stats_figure)
         
         self.clock = Clock()
         self.instances = []
@@ -192,6 +192,10 @@ class MainFrame(wx.Frame):
         #self.stats_grid.CreateGrid(30, 30)
         self.stats_text.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, face="Courier New"))
 
+        self.figure.subplots_adjust(left=0.06, right=0.99, top=0.99, bottom=0.03, hspace=0.06)
+        
+        self.stats_figure.subplots_adjust(bottom=0.4, wspace=0.3)
+
     def __do_layout(self):
         # begin wxGlade: GuiMain.__do_layout
         sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -229,10 +233,10 @@ class MainFrame(wx.Frame):
 
 #        sizer_10.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
 
-        sizer_11.Add(self.stats_text, 1, border=1, flag=wx.ALL | wx.TOP | wx.GROW)
+        sizer_11.Add(self.stats_text, 1, border=5, flag=wx.ALL | wx.TOP | wx.GROW)
         sizer_10.Add(sizer_11, 1, wx.EXPAND, 0)
 
-        sizer_12.Add(self.stats_panel, 1, flag=wx.ALL | wx.TOP | wx.GROW | wx.EXPAND)
+        sizer_12.Add(self.stats_canvas, 1, border=2, flag=wx.LEFT | wx.TOP | wx.GROW)
         sizer_10.Add(sizer_12, 1, wx.EXPAND, 0)
 
 
@@ -248,6 +252,7 @@ class MainFrame(wx.Frame):
         sizer_8.Add(self.notebook_1, 1, wx.EXPAND, 0)
         sizer_1.Add(sizer_8, 2, wx.EXPAND, 0)
         
+        self.canvas.Fit()
 
         #sizer_8.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
 

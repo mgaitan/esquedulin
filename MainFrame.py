@@ -591,7 +591,6 @@ class MainFrame(wx.Frame):
             self.clock.inc()
             self.figure.clf()
             for num, alg in enumerate(self.instances):
-                print self.figure
                 alg.step()
                 alg.set_ax(self.figure, '%i1%i' % (len(self.instances), num+1))
 
@@ -650,6 +649,8 @@ class MainFrame(wx.Frame):
         
         ax = self.stats_figure.add_subplot(121)
         y = np.arange(len(all))+.5
+
+
         ax.barh(y, [alg.get_media_tr() for alg in reversed(all)], align="center")
         ax.set_yticks(y)
         ax.set_yticklabels([alg.short_name for alg in reversed(all)])

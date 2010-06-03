@@ -7,16 +7,18 @@ from texttable import Texttable
 
 class Clock():
     # __metaclass__ = Singleton
-    def __init__(self):
-        self.time = 0 #initial time
+    def __init__(self, init=0):
+        self.time = init #initial time
+
     def inc(self):
         self.time += 1
 
     def reset(self):
         self.time = 0
 
+    
     def __repr__(self):
-        return "Time: %i" % self.time
+        return "Time elapsed: %i" % self.time
 
 class Cpu(object):
     """A processor unit object"""
@@ -123,7 +125,7 @@ class Process():
         table = Texttable()
         
         table.add_rows([ [ 'Process' , 'init', 'end', 'Tr', 'Tr/Ts', 'wait', 'cpu', 'est Ts', 'remain'] , 
-                         [ "%s (%s)" % (self.name, self.status[0:4]), self.init_time, \
+                         [ "%s (%s)" % (self.name, self.status[0:3]), self.init_time, \
                             self.end_time, self.get_tr(), "%.2f" % self.get_rate(), self.waiting_time, \
                             self.cpu_time, self.estimated_duration, self.remaining_time  ] ])
         
@@ -225,11 +227,16 @@ class Algorithm():
         return sal
 
     def get_media_tr(self):
-        return sum([p.get_tr() for p in self.finished])/float(len(self.finished))
+        if len(self.finished)>0:
+            return sum([p.get_tr() for p in self.finished])/float(len(self.finished))
+        else:
+            return -1
     
     def get_media_rate(self):
-        return sum([p.get_rate() for p in self.finished])/float(len(self.finished))
-
+        if len(self.finished)>0:
+            return sum([p.get_rate() for p in self.finished])/float(len(self.finished))
+        else:
+            return -1
 
     #@logger("Algorithm")
     def step(self):
@@ -274,7 +281,9 @@ class Algorithm():
         self.total_time_running = 0
         self.clock.reset()
         self.cpu.reset()
-        
+
+    def get_all_process(self):
+         return self.finished + self.process_list + self.cpu.process
         
     def set_ax(self, fig, order='111'):
         def cmp_by_order(x, y):
@@ -285,7 +294,7 @@ class Algorithm():
             if x.order > y.order:
                 return 1
         
-        all_process = self.finished + self.process_list + self.cpu.process
+        all_process = self.get_all_process()
         all_process.sort(cmp = cmp_by_order)
 
         vspace = 1.5

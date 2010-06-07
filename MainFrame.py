@@ -367,16 +367,13 @@ class MainFrame(wx.Frame):
 
             # Open the file, read the contents and set them into
             # the text edit window
-            filehandle=open(os.path.join(self.dirname, self.filename),'r')
-            data = pickle.load(filehandle)
-            
-            
-            self.set_table_process(data[0])
-            
-            self.set_algorithm_table(data[1])            
+            with open(os.path.join(self.dirname, self.filename),'r') as filehandle:
+                data = pickle.load(filehandle)
+                self.set_table_process(data[0])     #TODO: need to be more robust
+                self.set_algorithm_table(data[1])            
 
-            self.figure.clf()
             filehandle.close()
+            self.figure.clf()
 
             # Report on name of latest file read
             self.SetTitle("%s <%s>" % (self.titulo, self.filename))

@@ -56,7 +56,7 @@ Características
 
 * Extensibilidad mediante orientación a objetos. Facilmente se puede prototipar un 
   nuevo algoritmo definiendo una *función de selección* y algunos datos descriptivos.
-  Por ejemplo, la implementación de FCFC es este breve código
+  Por ejemplo, la implementación de FCFC es este breve código::
 
 
     class FCFS(Algorithm):

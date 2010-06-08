@@ -328,8 +328,11 @@ y podrá ejecutar Esquedulin:</p>
 $ python esquedulin.py
 </pre>
 </div>
-<div class="section" id="algoritmos-implementados">
-<h1>Algoritmos implementados</h1>
+<div class="section" id="caracter-sticas">
+<h1>Características</h1>
+<ul>
+<li><p class="first">Multiples algoritmos implementados:</p>
+<blockquote>
 <ul class="simple">
 <li>First-Come, First-Serve</li>
 <li>Short process next</li>
@@ -338,6 +341,46 @@ $ python esquedulin.py
 <li>Round Robin  (con quantum configurable)</li>
 <li>Feedback (con quantum, exponencial y cantidad de 'buffers' configurables)</li>
 </ul>
+</blockquote>
+</li>
+<li><p class="first">Extensibilidad mediante orientación a objetos. Facilmente se puede prototipar un
+nuevo algoritmo definiendo una <em>función de selección</em> y algunos datos descriptivos.
+Por ejemplo, la implementación de FCFC es este breve código</p>
+<blockquote>
+<p>class FCFS(Algorithm):
+&quot;&quot;&quot;First Came First Serve is the most simple algorithm&quot;&quot;&quot;</p>
+<dl class="docutils">
+<dt>def __init__(self,procesos=None):</dt>
+<dd><p class="first last">Algorithm.__init__(self,procesos)
+self.short_name = u'FCFS'
+self.long_name = u'First-Come, First-Serve'
+self.preferent = False
+self.description = self.__doc__</p>
+</dd>
+<dt>def selection_function(self, x, y):</dt>
+<dd><p class="first last">&quot;&quot;&quot;Doesn't alter the order of process in the queue&quot;&quot;&quot;
+return 0</p>
+</dd>
+</dl>
+</blockquote>
+</li>
+<li><p class="first">Ejecución paso a paso o <em>hasta el final</em></p>
+</li>
+<li><p class="first">Cálculo de estadísticas</p>
+</li>
+<li><p class="first">Información del estado de cada proceso</p>
+</li>
+<li><p class="first">Persistencia del entorno en archivo (*.esq)</p>
+</li>
+<li><p class="first">Multiplataforma: Linux/Windows/OSx</p>
+</li>
+<li><p class="first">Exportación de gráficos en multiples formatos (png, svg, eps, ...)</p>
+</li>
+</ul>
+</div>
+<div class="section" id="captura-de-pantalla">
+<h1>Captura de pantalla</h1>
+<!-- image: screenshot.png -->
 </div>
 <div class="section" id="ejemplo">
 <h1>Ejemplo</h1>
@@ -376,6 +419,17 @@ procesos siguiente</p>
 </tr>
 </tbody>
 </table>
+<p>y los siguientes algoritmos:</p>
+<ul class="simple">
+<li>First-Come, First-Serve</li>
+<li>Round Robin Q=4</li>
+<li>Round Robin Q=1</li>
+<li>Short process next</li>
+<li>Highest Response Rate Next</li>
+<li>Shortest remaining time</li>
+<li>Feedback q=1</li>
+<li>Feedback q=2*i</li>
+</ul>
 <p>Se obtiene la siguiente salida</p>
 <blockquote>
 <img alt="stalling.png" src="stalling.png" />

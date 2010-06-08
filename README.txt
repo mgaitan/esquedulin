@@ -42,15 +42,50 @@ y podrá ejecutar Esquedulin::
     $ python esquedulin.py
 
 
-Algoritmos implementados
-------------------------
+Características
+---------------
 
-* First-Come, First-Serve
-* Short process next
-* Shortest remaining time
-* Highest Response Rate Next
-* Round Robin  (con quantum configurable)
-* Feedback (con quantum, exponencial y cantidad de 'buffers' configurables)
+* Multiples algoritmos implementados:
+
+    * First-Come, First-Serve
+    * Short process next
+    * Shortest remaining time
+    * Highest Response Rate Next
+    * Round Robin  (con quantum configurable)
+    * Feedback (con quantum, exponencial y cantidad de 'buffers' configurables)
+
+* Extensibilidad mediante orientación a objetos. Facilmente se puede prototipar un 
+  nuevo algoritmo definiendo una *función de selección* y algunos datos descriptivos.
+  Por ejemplo, la implementación de FCFC es este breve código
+
+
+    class FCFS(Algorithm):
+    """First Came First Serve is the most simple algorithm"""
+
+    def __init__(self,procesos=None):
+        Algorithm.__init__(self,procesos)
+        self.short_name = u'FCFS'
+        self.long_name = u'First-Come, First-Serve'
+        self.preferent = False
+        self.description = self.__doc__
+            
+    def selection_function(self, x, y):
+        """Doesn't alter the order of process in the queue"""
+        return 0
+
+* Ejecución paso a paso o *hasta el final*
+* Cálculo de estadísticas 
+* Información del estado de cada proceso
+* Persistencia del entorno en archivo (\*.esq)
+* Multiplataforma: Linux/Windows/OSx  
+* Exportación de gráficos en multiples formatos (png, svg, eps, ...)
+
+
+Captura de pantalla
+-------------------
+
+.. image: screenshot.png
+
 
 
 Ejemplo

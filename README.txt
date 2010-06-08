@@ -84,7 +84,7 @@ Características
 Captura de pantalla
 -------------------
 
-.. image: screenshot.png
+    .. image: screenshot.png
 
 
 

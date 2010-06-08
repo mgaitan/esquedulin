@@ -119,7 +119,7 @@ y los siguientes algoritmos:
 * Highest Response Rate Next
 * Shortest remaining time
 * Feedback q=1
-* Feedback q=2*i 
+* Feedback q=2^i 
 
 Se obtiene la siguiente salida
 

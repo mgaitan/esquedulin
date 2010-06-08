@@ -92,7 +92,8 @@ Ejemplo
 -------
 
 Extraído del libro Sistemas Operativos de Willian Stalling. Para la tabla de
-procesos siguiente
+procesos siguiente. Puedes bajar este ejemplo `aquí 
+<http://esquedulin.googlecode.com/svn/trunk/test.esq>`_. 
 
 
 +------+-----------+--------------------+

@@ -11,9 +11,10 @@ Introducción
 ------------
 
 Esquedulin es un software para la simulación y el prototipado de algoritmos de
-planificación de corto plazo para sistemas monoprocesador. Fue desarrollado por 
-Martín Gaitán como proyecto final para la  promoción de la asignatura Sistemas 
-Operativos II de la carrera `Ingeniería en Computación`_, FCEFyN_, UNC_.
+planificación de corto plazo para sistemas monoprocesador. Fue desarrollado como proyecto 
+final para la  promoción de la asignatura Sistemas Operativos II de la carrera 
+`Ingeniería en Computación`_, FCEFyN_, UNC_, a cargo del profesor Ing. Antoño
+Treviño. 
 
 
 .. _`Ingeniería en Computación`: http://computacion.efn.uncor.edu

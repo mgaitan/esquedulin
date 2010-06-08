@@ -345,24 +345,22 @@ $ python esquedulin.py
 </li>
 <li><p class="first">Extensibilidad mediante orientación a objetos. Facilmente se puede prototipar un
 nuevo algoritmo definiendo una <em>función de selección</em> y algunos datos descriptivos.
-Por ejemplo, la implementación de FCFC es este breve código</p>
-<blockquote>
-<p>class FCFS(Algorithm):
-&quot;&quot;&quot;First Came First Serve is the most simple algorithm&quot;&quot;&quot;</p>
-<dl class="docutils">
-<dt>def __init__(self,procesos=None):</dt>
-<dd><p class="first last">Algorithm.__init__(self,procesos)
-self.short_name = u'FCFS'
-self.long_name = u'First-Come, First-Serve'
-self.preferent = False
-self.description = self.__doc__</p>
-</dd>
-<dt>def selection_function(self, x, y):</dt>
-<dd><p class="first last">&quot;&quot;&quot;Doesn't alter the order of process in the queue&quot;&quot;&quot;
-return 0</p>
-</dd>
-</dl>
-</blockquote>
+Por ejemplo, la implementación de FCFC es este breve código:</p>
+<pre class="literal-block">
+class FCFS(Algorithm):
+&quot;&quot;&quot;First Came First Serve is the most simple algorithm&quot;&quot;&quot;
+
+def __init__(self,procesos=None):
+    Algorithm.__init__(self,procesos)
+    self.short_name = u'FCFS'
+    self.long_name = u'First-Come, First-Serve'
+    self.preferent = False
+    self.description = self.__doc__
+
+def selection_function(self, x, y):
+    &quot;&quot;&quot;Doesn't alter the order of process in the queue&quot;&quot;&quot;
+    return 0
+</pre>
 </li>
 <li><p class="first">Ejecución paso a paso o <em>hasta el final</em></p>
 </li>
